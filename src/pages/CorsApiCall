@@ -27,5 +27,5 @@ Date: Wed, 07 May 2014 19:15:41 GMT
 "signature" : "",//digital signature generated
 "token" : "",// token generated
 "key":"" //generated key
-"success" : true // resultof success or error
+"success" : true // success or failure
 }
