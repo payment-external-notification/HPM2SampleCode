@@ -1,0 +1,82 @@
+// Sample code to display the iframe of the payment method page in the Preview Hosted Payment Method Page
+var ifrmId= 'z_hppm_iframe';
+
+var Z = function() {
+var ziframe='#z_hppm_iframe {background-color: #FAFAFA;vertical-align:bottom;z-index:9999;display:block;padding:0px;margin: 0px; border:0px solid #DDD;}';
+
+createIframe: function(container) {
+			var uri = Z.createIframeURL();
+			
+			var iframe = document.createElement('iframe');
+	        iframe.setAttribute('src', uri);
+	        iframe.setAttribute('id', ifrmId);
+	        iframe.setAttribute("overflow","visible");
+	        iframe.setAttribute("scrolling","no");
+	        iframe.setAttribute('frameBorder','0');
+	        iframe.setAttribute('allowtransparency','true');
+	        iframe.setAttribute('class','z_hppm_iframe');
+	       	iframe.setAttribute('width','100%');
+	        iframe.setAttribute('height','100%');
+
+	        if (iframe.addEventListener) {
+	            iframe.addEventListener("load", function(e) {
+	            	Z.prepopulate(initParams);
+	            	return false;
+		        }, false);
+	    	} else {
+	            iframe.attachEvent("onload", function() {
+	            	Z.prepopulate(initParams);
+	            	return false;
+	            });
+			}
+	        if (typeof options != 'undefined') {
+	            if (typeof options.vertical != 'undefined' && options.vertical) {
+	                iframe.style.width = '100%';
+	                iframe.style.height = '100%';
+	            }
+	        }
+	        container.appendChild(iframe);
+	        ZFB.resizeCaller(ifrmId);
+	    },
+
+	    createIframeURL: function() {
+	    	var uri = baseUri;
+	    	return  uri.concat(queryParam);
+	    },
+	    
+	    post: function(hosted_iframe_id, message) {
+	    	// pass the URL of the current parent page to the iframe using location.hash
+	    	var iframe = document.getElementById(hosted_iframe_id);
+			var src = iframe.src + '#' + encodeURIComponent(document.location.href);
+			iframe.src = src;
+	    	
+	    	ZXD.postMessage(message, src, iframe.contentWindow);
+	    	return false;
+	    },
+	    
+	    receive: function(message) {
+	    	if(message =='resize') {
+		        ZFB.resizeCaller(ifrmId);
+	    	}
+	    	//alert(r);
+	    },
+	    
+	    submit: function () {
+	    	// pass the URL of the current parent page to the iframe using location.hash
+	    	var src = document.getElementById(ifrmId).src + '#' + encodeURIComponent(document.location.href);
+	    	document.getElementById(ifrmId).src = src;
+	    	ZXD.postMessage("postPage", src, document.getElementById(ifrmId).contentWindow);
+	    	return false;
+	    },
+	    
+	    responseHandler: function(response) { 
+        	var url = response.redirectUrl;
+	        if(response.success) {
+				var redirectUrl = url+"?refId="+response.refId+"&success="+response.success+"&signature="+response.signature+"&token="+response.token;
+	            window.location.replace(redirectUrl);
+	        } else {
+				var redirectUrl = url+"?errorCode="+response.errorCode + "&errorMessage="+response.errorMessage+"&success="+response.success+"&signature="+response.signature+"&token="+response.token;
+	            window.location.replace(redirectUrl);
+	        }
+	    }
+}
