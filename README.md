@@ -30,12 +30,12 @@ INTRODUCTION
 There are two steps which needs to be implemented by the customer in order to implement Hosted Payment Pages Version 2.0.The two steps are mentioned as follows:
 
 
-1. Generating the digital signature and token using CORS:
+A) Generating the digital signature and token using CORS:
 
 CORS is Zuora's REST API call to generate the digital signature for the resources. The REST call generates the token, signature and also returns the public key for encryption of the sensitive data. Please refer to the CorsApiCall under src directory for the curl representation of the API call.
 
 
-  2. Including the Zuora javascript library:
+B) Including the Zuora javascript library:
 
 In order to render the Hosted Pages on client side, please include the Zuora's public library (zuroa-*.js) in your page.  The implementation parameters are illustrated in the same code src/HPM2Javascript file. Please refer to comments inlined within the sample code to understand the usage of parameters. Also refer to the src/HPMPrepopulationFields to see the list of field names that can be prepopulated in the rendered payment form.
 
