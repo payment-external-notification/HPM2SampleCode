@@ -57,7 +57,7 @@ http://knowledgecenter.zuora.com/
 File Index
 -----------------
 
-src/Pages/..   Sample Javascript Implementation
+src/Pages/   Sample Javascript Implementation
 src/Pages/..   List of prepopulated fields.
 
 
