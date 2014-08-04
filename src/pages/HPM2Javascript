@@ -1,1 +1,41 @@
-hi
+<!-- Zuora Public javascript library -->
+<script type="text/javascript" src="http://<host address>/apps/Hosted/Sample/zuora.js"/></script>
+ 
+<!-- optional json params in case prepopulation of certain fields is desired-->
+var prepopulateFields = {
+    creditCardAddress1:"123 Any Street",
+    creditCardAddress2:"Suite #999",
+    creditCardCountry:"USA",
+    creditCardState:"California",
+    creditCardHolderName:"John Doe"
+};
+ 
+// Sample JSON params for rendering iframe on client side
+var params = {
+    tenantId:9, <!-- mandatory -->
+    id:"ff80808145b3bf9d0145b3c6812b0008", <!-- pageId-->
+    token:"qJ52b1iCyPXyZTcuQbfZa2qmKhD4qBGz", <!-- token from step 1-->
+    signature:"MjJmYjBmNTY3ZWI3ZjcyZTRmMjZlZWVhMTJhZDhiYWI1ZjUyMGRkNQ==",
+    style:"overlay", <!-styling -inline or overlay -->
+    key:"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC59DglWlsd82ooSVYyXoniF5rln3edz+5tdPLVBXXPDVXDCI9w7sneaj+XQs5LFaHZby117XzE8CFmoskVd2tsGLvXr83gEQ7eCXUrY0NDBFlAs0t+ChkB18VXG2DBbeUCI2poZJpCbpQm4rSvqUeY+8H/+/Stf4hXFWVPEEWyjwIDQAB",
+    submitEnabled:"true"/"false", //optional
+    locale:"fr_FR", //optional defaults to configuration if resource bundle is not found
+    url:"http://<hostedAddress>/apps/HostedPageLite.do"
+};
+ 
+//Call to js library function
+Z.render(
+  params,<!-- required -->
+  prepopulateFields,<!-- optional -->
+  function(refId) {   <!-- callback to handle successful response - optional if redirectUrl is provided-->
+        if(response.success) {
+            var redirectUrl = "http://localhost:8080/apps/Hosted/lite/Sample/confirmation.jsp?refId="+response.refId;
+            window.location.replace(redirectUrl);
+        } else {
+            var redirectUrl = "http://localhost:8080/apps/Hosted/lite/Sample/confirmation.jsp?errorCode="+response.errorCode + "&errorMessage="+response.errorMessage;
+            window.location.replace(redirectUrl);
+        }
+  });
+ 
+//expected div tag in client page
+<div id="zuora_payment"></div>
