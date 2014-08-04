@@ -36,7 +36,7 @@ CORS is Zuora's REST API call to generate the digital signature for the resource
 
 2. Including the Zuora javascript library:
 
-In order to render the Hosted Pages on client side, please include the Zuora's public library (zuroa-*.js) in your page.  The implementation parameters are illustrated in the same code src/HPM2Javascript file. Please refer to comments inlined within the sample code to understand the usage of parameters.
+In order to render the Hosted Pages on client side, please include the Zuora's public library (zuroa-*.js) in your page.  The implementation parameters are illustrated in the same code src/HPM2Javascript file. Please refer to comments inlined within the sample code to understand the usage of parameters. Also refer to the src/HPMPrepopulationFields to see the list of field names that can be prepopulated in the rendered payment form.
 
 
 
@@ -53,6 +53,12 @@ Please refer to the HPM Version 2.0 chapter on Zuora knowledge center:
 
 http://knowledgecenter.zuora.com/
  
+
+File Index
+-----------------
+
+src/Pages/..   Sample Javascript Implementation
+src/Pages/..   List of prepopulated fields.
 
 
 
