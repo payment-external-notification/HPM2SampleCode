@@ -1,0 +1,204 @@
+// Sample code to display the iframe in different formats and to prepopulate the values uploaded by the customer to the iframe
+var Z = function() {
+	var zoverlay='#z-overlay {opacity:0.5;display:inline-block;position:fixed;top:0;left:0;width:100%;height:100%;background-color: #000;z-index: 1001;}';
+	var zcontainer='#z-container {border:1px;float:left; overflow-y: auto; position: absolute;padding: 0px; display: inline-block; top:5%; left:34%; right:25%; margin: 0 auto;-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius:5px;background-color: #FAFAFA; border:1px solid #FAFAFA;border-top-color:#EDEDED;behavior: url(js/PIE.htc);z-index: 1002;}';
+	var zdata='#z-data {height: 100%; outline: 0px; width: 100%; overflow: visible;display: inline-block;border:1px; -webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius:5px;}';
+	var reset="#reset{*, *:before, *:after {display: inline-block;-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}}";
+	var ziframe='#z_hppm_iframe {background-color: #FAFAFA;vertical-align:bottom;z-index:9999;display:block;padding:0px;margin: 0px; border:0px solid #DDD;}';
+	
+	var method='requestPage';
+	var baseUri;
+	var queryParam, initParams,ek;
+	var allowedParams = ['tenantId', 'id','token','signature','key','style','submitEnabled','locale','url','preview'];
+	
+	return {
+		validate: function(key) {
+			var len = allowedParams.length;
+			for	(index = 0; index < len; index++) {
+			   if(key == allowedParams[index]){
+				   return true;
+			   }
+			}
+			return false;
+		},
+		
+		init : function(params, callback) {
+			queryParam='?method=requestPage&';
+
+			var pstr=JSON.stringify(params, 
+					function(key,value) {
+						if(key!='') {
+							if(Z.validate(key)) {
+								if('key' ==key) {
+									ek = value;
+									// public key which will be retrieved from server side
+								} else if('url' ==key) {
+									baseUri = value;							
+								}else {
+									queryParam=queryParam+key+'='+value+'&';
+								}
+							}
+						}
+						return value;
+		    		});
+			p=JSON.parse(pstr);
+            
+			//register message reciever for iframe response
+			ZXD.receiveMessage(function(message) {
+				var response= message.data;
+				if(response.success) {
+					if(callback) {
+						callback(response);
+					}else {
+						Z.responseHandler(response);
+					}
+				} else if (response.success == false){
+					Z.deactivateOverlay('z-overlay');
+					Z.deactivateOverlay('z-container');
+
+					callback(response);
+
+				} else if(response == 'close') {
+					Z.deactivateOverlay('z-overlay');
+					Z.deactivateOverlay('z-container');
+				} else {
+					Z.receive(response);
+				}
+			});
+		},
+		
+		// function to prepopulate the values of the parameters in the iframe
+		prepopulate: function(params) {
+
+			var iframeSrc = Z.createIframeURL();
+			
+			if(iframeSrc==document.getElementById(ifrmId).src) {
+				var pstr=JSON.stringify(params, 
+						function(key,value) {
+							if(key!='') {
+								var message = 'setField('+key+':'+value+')';
+								Z.post(ifrmId,message);
+							}
+							return value;
+			    		});
+				var message = 'setField(key:'+ek+')';
+				Z.post(ifrmId,message);
+				Z.post(ifrmId,'setField(style:'+p.style+')');
+			}
+		},
+		
+		render : function(params,initFields, callback) {
+			Z.init(params, callback);
+			initParams = initFields;
+			
+		    var container = document.getElementById('zuora_payment');
+			if (typeof container == 'undefined' || !container) {
+	        	return {
+	            	"error": "invalid_request",
+	            	"error_description": "The container you specified does not exist"
+	        	};
+	    	}
+			
+			Z.cleanUp(container,'z-overlay');
+			Z.cleanUp(container,'z-container');
+			
+			//mode-inline, overlay
+			if(p.style=='inline') {
+				Z.addInlineStyles();
+				Z.createIframe(container);
+				
+				return;
+			} 
+			
+			if(p.style=='overlay') {
+				Z.addOverlayStyles();
+				
+		        var divOuter = Z.generateDiv('z-overlay','z-overlay');
+	        	container.appendChild(divOuter);
+
+	        	var divContent = Z.generateDiv('z-container','z-container');
+	        	container.appendChild(divContent);
+	        	
+	        	var divData = Z.generateDiv('z-data','z-data');
+	        	divData.tabindex="-1";
+
+	        	divContent.appendChild(divData);
+
+				Z.createIframe(document.getElementById('z-data'));
+				Z.activateOverlay('z-overlay');
+			}
+	   },
+	   
+	   cleanUp: function(container,elementName) {
+		   var element = document.getElementById(elementName);
+		   if(element!=null) {
+			   container.removeChild(element);
+		   }
+	   },
+	   
+	   activateOverlay: function(id) {
+		   try{
+			document.getElementById(id).style.display='inline';
+		   }catch(e){}
+	   },
+	   
+	   deactivateOverlay: function(id) {
+		   try {
+			document.getElementById(id).style.display='none';
+		   }catch(e){
+			   //alert(e);
+		   }
+	   },
+	   
+	   generateDiv:function(id,style, handler) {
+	    	var div = document.createElement("div");
+	        div.id=id;
+	        div.className=style;
+	        div.border='0';
+
+	        if (div.addEventListener){
+	        	div.addEventListener("click", handler, false);
+	   		} else {
+	   			div.attachEvent("click", handler);
+	   		}
+			return div;   
+	    },
+	    
+	   addOverlayStyles: function() {
+	        var style = document.createElement('style');
+	        style.type = 'text/css';
+	        var lbstyle = document.createTextNode(zoverlay);
+	        var lbcontentstyle = document.createTextNode(zcontainer);
+	        var lbdatastyle = document.createTextNode(zdata);
+	        var iframestyle = document.createTextNode(ziframe);
+	        var lbreset = document.createTextNode(reset);
+
+	        
+
+	        if (style.styleSheet) {
+	            style.styleSheet.cssText = lbstyle.nodeValue +' '+ lbcontentstyle.nodeValue +' '+lbdatastyle.nodeValue +' '+ lbreset.nodeValue +' '+ iframestyle.nodeValue ;
+	        } else {
+	            style.appendChild(lbstyle);
+	            style.appendChild(lbcontentstyle);
+	            style.appendChild(lbdatastyle);
+	            style.appendChild(iframestyle);
+	            style.appendChild(lbreset);
+	        }
+        
+	        document.getElementsByTagName('head')[0].appendChild(style);
+	    },
+	    
+	    addInlineStyles: function() {
+	        var style = document.createElement('style');
+	        style.type = 'text/css';
+	        var iframestyle = document.createTextNode(ziframe);
+
+	        if (style.styleSheet) {
+	            style.styleSheet.cssText = iframestyle.nodeValue ;
+	        } else {
+	            style.appendChild(iframestyle);
+	        }
+        
+	        document.getElementsByTagName('head')[0].appendChild(style);
+	    }
+}
