@@ -27,57 +27,23 @@
 INTRODUCTION
 ------------
 
-The goal of this project is to minimize the complexity and implementation time of including the hosted pages in the customer sites. The customer should be able to include pages by writing fewer lines of code and thereby reducing the implementation time. 
-
 There are two steps which needs to be implemented by the customer in order to implement HPM Version 2.0.The two steps are mentioned as follows:
 
 
-1.Hiding the signature complexity using CORS:
-This step is the first step in which the customer will be able to generate the token and the digital signature which will be used to access the hosted pages.The CORS Api plays a vital role in generating the token and signature used for accessing the hosted pages.The signature are stored in Zuora's database and is used for signature verification at the time of page access.This leads to decoupling of Zuora resource access from the digital signature generation and thus, provides a uniform way of accessing the hosted pages.
-
+1.Generating the digital signature and token using CORS:
+This step is the first step in which the customer will be able to generate the token and the digital signature which will be used to access the hosted pages.The CORS Api plays a vital role in generating the token and signature used for accessing the hosted pages.
 
 2.Including the Zuora javascript library:
-In this step, the customer will be required to include the Zuora javascript library which will hide the implementation details and thus, will allow implementation with fewer configurations which will indeed result in a very efficient way of implementation.This library will handle the pre-population of the form fields and handle the successful response. It will also give the customer the option to render the page inline with their existing page or as an overlay on their page. It also hides the complexity around the cross-origin scripting for iframe communication. The code below enumerates the code required to render the page. The library uses JSON parameters for rendering.
+In this step, the customer will be required to include the Zuora javascript library which will result in a very efficient way of implementation by eliminating embedding of an iframe in the page, removing all the error handling scenarios and eliminating the callback responses.
 
 
 
 
 PRE-REQUISITES
 -------------
+It is necessary to include all the zuora javascript files of HPM 1.0 Version in order to implement the HPM 2.0 version.
 
-This sample code package is an unmanaged package that depends on the following Z-Force managed packages: 
-- Z-Force 360 Version 2.2
-- Z-Force Quotes Version 5.3
-
-INSTALLATION INSTRUCTIONS
--------------------------
-
-1. Install this sample code package using the following Force.com Installation URL (Version 1.1): 
-
-https://login.salesforce.com/packaging/installPackage.apexp?p0=04td0000000AFwd
-
-This will install sample code unmanaged package into your Salesforce.com organization.
-
-CONFIGURATION INSTRUCTIONS 
---------------------------
-
-1. Add "New Payment Method" button onto the following Quote V5.0 Layouts: 
-Quote Layout Default V5.0
-Quote Layout Amendment V5.0
-Quote Layout Renewal V5.0
-Quote Layout Default Read-only V5.0
-Quote Layout Amendment Read-only V5.0
-Quote Layout Renewal Read-only V5.0
-
-2. Add "New Payment Method" button onto the Billing Account Layouts.
-
-3. Follow the instructions on the following link to configure a Z-Payment Page in Zuora: 
-http://knowledgecenter.zuora.com/C_Zuora_User_Guides/B_Commerce/Z-Payments_Page_User_Guide/Implementing_Z-Payments_Page_with_Salesforce.com/B_Create_a_Hosted_Payment_Page_in_Zuora
-
-4. Follow the instructions on the following link to configure Z-Payment settings in Salesforce.com organization: 
-http://knowledgecenter.zuora.com/C_Zuora_User_Guides/B_Commerce/Z-Payments_Page_User_Guide/Implementing_Z-Payments_Page_with_Salesforce.com/C_Configure_the_Z-Payments_Page_Settings_in_Salesforce.com
-
-For more information on Salesforce.com and Z-Payment Pages integration please refer to the Z-Payment Pages chapter on Zuora knowledge center: 
-http://knowledgecenter.zuora.com/C_Zuora_User_Guides/B_Commerce/Z-Payments_Page_User_Guide
+For more information on the implementation of HPM Verison 2.0  please refer to the HPM Version 2.0 chapter on Zuora knowledge center: 
+http://knowledgecenter.zuora.com/
  
 
