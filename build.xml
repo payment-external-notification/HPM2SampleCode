@@ -1,8 +1,0 @@
-<project name="zforce.sample.HostedPage2.0" default="" basedir="." xmlns:sf="antlib:com.salesforce">
-
-  <property file="build.properties" />
-  <property environment="env" />
-
-  <import file="../sample-imports.xml"/>
-
-</project>
