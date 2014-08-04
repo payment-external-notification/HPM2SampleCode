@@ -1,0 +1,78 @@
+// Sample code for localization
+var loc = function() {
+	return {
+		upload: function() {
+			try{
+				var fileform = document.HostedPageLocalizationForm;
+				var uploadvalue = fileform.attachment.value;
+				var reg = /.+\.properties|.txt$/;
+				
+				if(reg.test(uploadvalue)){
+					var formData = new FormData(jQuery('#HostedPageLocalizationForm')[0]);
+					var pageKey = document.HostedPageLocalizationForm.pageKey.value;
+					jQuery.ajax({
+					        url: 'HostedPageLocalization.do?method=saveResource&pageKey='+pageKey,
+					        type: 'POST',
+					        data: formData,
+					        cache: false,
+					        async: false,
+					        processData: false, // Don't process the files
+					        contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+					        success: function (response) {
+					        	if(response.status=='true') {
+						        	loc.ajaxLoadLocalization();	
+					        	}else {
+					        		ZMessage.Alert(response.errorMessage);
+					        	}
+					        },
+					        error: function (error) {
+					        	ZMessage.Alert(response.errorMessage);
+					        }
+					    });
+				} else {
+					ZMessage.Alert("Please upload files with extension .properties or .txt");
+				}
+			}catch(e){
+				//alert(e);
+			}
+		},
+		
+		deleteFile:function(id,fileId) {
+			jQuery.ajax({
+		        url: "HostedPageLocalization.do?method=deleteResource&fileId="+fileId+"&id="+id,
+		        type: 'POST',
+		        success: function (response) {
+		        	if(response.status=='true') {
+		        		loc.ajaxLoadLocalization()
+		        	}else {
+		        		loc.displayMessage(response.message);
+		        	}
+		        },
+		        error: function (error) {
+		        	loc.displayMessage(error);
+		        }
+		    });
+		},
+		
+		ajaxLoadLocalization:function() {
+			var pageId = document.HostedPageLocalizationForm.pageId.value;
+			var pageKey = document.HostedPageLocalizationForm.pageKey.value;
+
+			var url = "HostedPageLocalization.do?method=listResources&pageId="+ pageId+"&pageKey="+pageKey;
+			
+			AjaxRequest.urlRequest(url,'localization_div',function() {
+				$('localization_div').setStyle("height","auto");
+			});
+		},
+		checkFileSize: function(inputFile) {
+		    var max = 10*1024; // 10KB
+		    if (inputFile.files && inputFile.files[0].size > max) {
+		        ZMessage.Alert("This file exceeds the max file size limits. Files should not be larger than 10kb. Please compare the file format with the template file and try again. The template can be downloaded using the link on this page.");
+		        inputFile.value = null; // Clear the field.
+		    }
+		}
+	};
+}();
+
+
+
