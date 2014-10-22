@@ -1,7 +1,7 @@
 HPM2SampleCodeJava is JEE dynamic web application eclipse project which demonstrates how to utilize HPM2.0 in your commerce web application. 
 
 
-Requirement:
+REQUIREMENTS:
 -----------
 1. JDK 1.6.
 	
@@ -10,7 +10,7 @@ Requirement:
 3. Tomcat 7.0 or other servlet container.
 
 
-Usage Steps:
+RUNNING THE SAMPLE:
 ------------
 1. Import this project into Eclipse.
 	
