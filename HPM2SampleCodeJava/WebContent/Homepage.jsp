@@ -8,7 +8,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link href="hpm_default_responsive_v5.css" rel="stylesheet" type="text/css"> 
+<link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Homepage</title>
 <script type="text/javascript">
 var locales = {
@@ -79,13 +79,9 @@ function showPage() {
 </script>
 </head>
 <body onload="pageChange()">
-	<table border="0" align="center" style="margin-top: 80px; width: 600px; height: 300px;">
-		<tr>
-			<td><font size="5">Please select the Hosted Page:</font></td>
-		</tr>
-		<tr>
-			<td>
-				<select id="page" style="width: 150px; height: 24px;" onchange="pageChange(this)">
+	<div class="firstTitle"><font size="5">Please select the Hosted Page:</font></div>
+	<div class="item">
+		<select id="page" style="width: 150px; height: 24px;" onchange="pageChange(this)">
 				<%
 					pageIterator = hpmHelper.getPages().keySet().iterator();
 					while(pageIterator.hasNext()) {
@@ -95,33 +91,16 @@ function showPage() {
 				<%			
 					}					
 				%>
-				</select>
-			</td>
-		</tr>
-		<tr>
-			<td><font size="5">Please select the Hosted Page style you want:</font></td>
-		</tr>
-		<tr>
-			<td><input type="radio" name="style" value="&style=inline&submitEnable=true" checked="checked"/>Inline, Submit button inside Hosted Page.</td>
-		</tr>
-		<tr>
-			<td><input type="radio" name="style" value="&style=inline&submitEnable=false"/>Inline, Submit button outside Hosted Page.</td>
-		</tr>
-		<tr>
-			<td><input type="radio" name="style" value="&style=overlay"/>Overlay Hosted Page.</td>
-		</tr>
-		<tr>
-			<td><font size="5">Please select the locale:</font></td>
-		</tr>
-		<tr>
-			<td>
-				<select id="locale" style="width: 150px; height: 24px;">
-				</select>
-			</td>
-		</tr>		
-		<tr>
-			<td><button onclick="showPage()" style="width: 50px; height: 24px; margin-left: 200px;">OK</button></td>
-		</tr>
-	</table>	
+		</select>
+	</div>
+	<div class="title"><font size="5">Please select the Hosted Page style you want:</font></div>
+	<div class="item"><input type="radio" name="style" value="&style=inline&submitEnable=true" checked="checked"/>Inline, Submit button inside Hosted Page.</div>
+	<div class="item"><input type="radio" name="style" value="&style=inline&submitEnable=false"/>Inline, Submit button outside Hosted Page.</div>
+	<div class="item"><input type="radio" name="style" value="&style=overlay"/>Overlay Hosted Page.</div>
+	<div class="title"><font size="5">Please select the locale:</font></div>
+	<div class="item">
+		<select id="locale" style="width: 150px; height: 24px;"></select>
+	</div>
+	<div class="title"><button onclick="showPage()" style="width: 50px; height: 24px; margin-left: 200px;">OK</button></div>
 </body>
 </html>

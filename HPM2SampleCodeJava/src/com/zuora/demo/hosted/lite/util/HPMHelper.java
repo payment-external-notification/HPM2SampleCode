@@ -58,9 +58,10 @@ import org.json.JSONObject;
 import com.zuora.demo.hosted.lite.support.BypassSSLSocketFactory;
 
 /**
- * Bypass self-signed certificate when we try to get signature from zuora application.
- * Note:
- *      if you have had valid certificate under the jdk, then you don't need to use this.
+ * HPM utility class which can 
+ * 		1. load and maintain configurations
+ * 		2. generate and validate signature
+ * 		3. encrypt pre-populate fields
  *       
  * @author Tony.Liu, Chunyu.Jia.
  */
@@ -100,6 +101,11 @@ public class HPMHelper {
 		return hpmHelper;
 	}
 	
+	/**
+	 * HPMPage contains the configurations for a single Hosted Page.
+	 * 
+	 * @author Tony.Liu, Chunyu.Jia.
+	 */
 	public static class HPMPage {
 		private String pageId;
 		private String paymentGateway;
@@ -136,6 +142,12 @@ public class HPMHelper {
 		}		
 	}
 	
+	/**
+	 * Load HPM configuration file.
+	 * 
+	 * @param configFile - the HPM configuration file path
+	 * @throws IOException
+	 */
 	public void loadConfiguration(String configFile) throws IOException {
 		Properties props = new Properties();
 		props.load(new FileInputStream(configFile));
@@ -212,11 +224,11 @@ public class HPMHelper {
 		this.password = password;
 	}	
 	
-	public String getPublicKeyString() {
+	public String getPublicKey() {
 		return publicKeyString;
 	}
 
-	public void setPublicKeyString(String publicKeyString) throws IOException {
+	public void setPublicKey(String publicKeyString) throws IOException {
 		this.publicKeyString = publicKeyString;
 		
 		generatePublicKeyObject();
@@ -228,10 +240,6 @@ public class HPMHelper {
 
 	public void setJsPath(String jsPath) {
 		this.jsPath = jsPath;
-	}
-
-	public String getPublicKey() {
-		return publicKeyString;
 	}
 	
 	public Map<String, HPMPage> getPages() {
@@ -259,6 +267,13 @@ public class HPMHelper {
 	    return json.toString();
 	}
 	
+	/**
+	 * Generate signature using Hosted Page configuration
+	 * 
+	 * @param pageName - Page Name specified in HPM configuration file
+	 * @return JSON object returned from generating signature REST call
+	 * @throws Exception
+	 */
 	public JSONObject generateSignaure(String pageName) throws Exception {
 		HPMPage page = pages.get(pageName);
 		if(page == null) {
@@ -299,6 +314,14 @@ public class HPMHelper {
 	    return json;
 	}
 
+	/**
+	 * Validate signature using Hosted Page configuration
+	 * 
+	 * @param pageName - Page Name specified in HPM configuration file
+	 * @param signature - signature need to validate
+	 * @return true if the signature is valid; otherwise, false 
+	 * @throws Exception
+	 */
 	public boolean isValidSignature(String pageName, String signature) throws Exception {
 		HPMPage page = pages.get(pageName);
 		if(page == null) {
@@ -334,7 +357,7 @@ public class HPMHelper {
 		
    	  	return true;   	  
 	}	
-	
+		
 	public boolean isValidPublicKey(String publicKey) {
 		if(publicKeyString.length() == publicKey.length() && publicKeyString.equals(publicKey)) {
 			return true;
@@ -345,5 +368,12 @@ public class HPMHelper {
 
 	public HPMPage getPage(String pageName) {
 		return pages.get(pageName);
+	}
+	
+	public String encrypt(String text) throws Exception {
+	 	Cipher encrypter = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+	 	encrypter.init(Cipher.ENCRYPT_MODE, publicKeyObject);
+	 	byte[] unencoded = encrypter.doFinal(text.getBytes(Charset.forName("UTF-8")));
+	 	return new String(Base64.encodeBase64(unencoded));
 	}
 }

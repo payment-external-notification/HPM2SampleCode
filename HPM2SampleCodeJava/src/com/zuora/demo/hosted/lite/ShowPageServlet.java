@@ -26,8 +26,9 @@
  */
 package com.zuora.demo.hosted.lite;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLDecoder;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -38,15 +39,21 @@ import org.json.JSONObject;
 
 import com.zuora.demo.hosted.lite.util.HPMHelper;
 
+/**
+ * ShowPageServlet generates signature and set the information used to render Hosted Page. 
+ * 
+ * @author Tony.Liu, Chunyu.Jia.
+ */
 public class ShowPageServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 9144330619558774243L;
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		HPMHelper hpmHelper = HPMHelper.getInstance();
+		String pageName = req.getParameter("pageName");
+		
 		try{
-			HPMHelper hpmHelper = HPMHelper.getInstance();
-			String pageName = req.getParameter("pageName");
 			if(pageName == null || "".equals(pageName.trim())) {
 				throw new Exception("Not specify Hosted Page.");
 			}
@@ -65,34 +72,56 @@ public class ShowPageServlet extends HttpServlet {
 			}
 			
 			// Validate signature.
-			if(!hpmHelper.isValidSignature(pageName, URLDecoder.decode(result.getString("signature"), "UTF-8"))) {
+			if(!hpmHelper.isValidSignature(pageName, result.getString("signature"))) {
 				throw new Exception("Invalid signature.");
 			}
-						
+			
+			// Set Hosted Page parameters.
 			req.setAttribute("url", hpmHelper.getUrl());
 			req.setAttribute("paymentGateway", hpmHelper.getPage(pageName).getPaymentGateway());
 			req.setAttribute("id", hpmHelper.getPage(pageName).getPageId());
 			req.setAttribute("key", hpmHelper.getPublicKey());
-			req.setAttribute("jsPath", hpmHelper.getJsPath());
 			req.setAttribute("locale", req.getParameter("locale") != null ? req.getParameter("locale") : "");
 			req.setAttribute("tenantId", result.getString("tenantId"));
 			req.setAttribute("token", result.getString("token"));
-			req.setAttribute("signature", result.getString("signature"));
-			req.setAttribute("pageName", pageName);
-									
-			if("overlay".equals(req.getParameter("style"))) {
-				req.getRequestDispatcher("/Overlay.jsp").forward(req, resp);
-			} else if("true".equals(req.getParameter("submitEnable"))) {
-				req.getRequestDispatcher("/Inline_ButtonIn.jsp").forward(req, resp);
-			} else {
-				req.getRequestDispatcher("/Inline_ButtonOut.jsp").forward(req, resp);
-			}
+			req.setAttribute("signature", result.getString("signature"));			
 		}catch(Exception e) {
 			System.out.println("Error happened during generating signature.");
 			
 			e.printStackTrace();
 			
 			throw new ServletException("Error happened during generating signature. " + e.getMessage());
+		}
+ 
+		try {
+			// Set pre-populate fields.
+			Properties props = new Properties();
+			props.load(new FileInputStream(req.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
+			for(String key : new String[]{"creditCardNumber", "cardSecurityCode", "creditCardType", "creditCardExpirationYear", "creditCardExpirationMonth"}) {
+				String value = props.getProperty(key);
+				if(value != null && !"".equals(value)) {
+					props.setProperty(key, hpmHelper.encrypt(value));
+				}
+			}
+			req.setAttribute("prepopFields", props);			
+		} catch (Exception e) {
+			System.out.println("Error happened during encrypting pre-populate fields.");
+			
+			e.printStackTrace();
+			
+			throw new ServletException("Error happened during encrypting pre-populate fields. " + e.getMessage());
+		}
+				
+		// Other variables.
+		req.setAttribute("pageName", pageName);
+		req.setAttribute("jsPath", hpmHelper.getJsPath());
+		
+		if("overlay".equals(req.getParameter("style"))) {
+			req.getRequestDispatcher("/Overlay.jsp").forward(req, resp);
+		} else if("true".equals(req.getParameter("submitEnable"))) {
+			req.getRequestDispatcher("/Inline_ButtonIn.jsp").forward(req, resp);
+		} else {
+			req.getRequestDispatcher("/Inline_ButtonOut.jsp").forward(req, resp);
 		}
 	}	
 }

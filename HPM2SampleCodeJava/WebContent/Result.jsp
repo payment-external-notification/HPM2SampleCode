@@ -6,7 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link href="hpm_default_responsive_v5.css" rel="stylesheet" type="text/css"> 
+<link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Result</title>
 <script type="text/javascript">
 function backHomepage() {
@@ -15,32 +15,22 @@ function backHomepage() {
 </script>
 </head>
 <body>
-	<table border="0" align="center" style="margin-top: 80px; width: 600px; height: 150px;">
-		<tr>
-			<td><font size="5">Submit Response</font></td>
-		</tr>
-		<tr>
-			<td><font size="3">success: <%=request.getParameter("success") %></font></td>
-		</tr>
+	<div class="firstTitle"><font size="5">Submit Response</font></div>
+	<div class="item"><font size="3">success: <%=request.getParameter("success") %></font></div>
 		<%
 			if(!"true".equals(request.getParameter("success"))) {
 		%>
-		<tr>
-			<td><font size="3">errorMessage: <%=request.getParameter("errorMessage") %></font></td>
-		</tr>
+	<div class="item"><font size="3">errorMessage: <%=request.getParameter("errorMessage") %></font></div>
 		<% 		
 			}
 		%>
 		<%
 			if(!"Inline_ButtonOut".equals(request.getParameter("field_passthrough5"))) {
 		%>
-		<tr>
-			<td><button onclick="backHomepage()" style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></td>
-		</tr>
+	<div class="item"><button onclick="backHomepage()" style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 		<%
 			}
 		%>
-	</table>
 </body>
 </html>
 

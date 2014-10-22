@@ -35,6 +35,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.zuora.demo.hosted.lite.util.HPMHelper;
 
+/**
+ * CallbackServlet is called after 
+ * 		1. failed to display Hosted Page
+ * 		2. succeeded and failed to submit Hosted Page
+ * 
+ * @author Tony.Liu, Chunyu.Jia.
+ */
 public class CallbackServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 6280395152816828551L;
@@ -53,7 +60,7 @@ public class CallbackServlet extends HttpServlet {
 		try {
 			if(req.getParameter("signature") != null && req.getParameter("field_passthrough4") != null ) {
 				if(!hpmHelper.isValidSignature(req.getParameter("field_passthrough4"), req.getParameter("signature"))) {
-					throw new Exception("Invalid signature.");
+					throw new Exception("Invalid signature.");					
 				}
 			}
 		} catch (Exception e) {

@@ -1,25 +1,60 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page import="java.util.Properties" %>
+<%@page import="java.util.Iterator" %>
+<%@page import="java.util.HashSet" %>
+<%@page import="java.util.Set" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<link href="hpm_default_responsive_v5.css" rel="stylesheet" type="text/css"> 
+<link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Inline, Button In.</title>
 <script type="text/javascript" src='<%=request.getAttribute("jsPath")%>'></script>
 <script type="text/javascript">
+<%
+Properties props = (Properties)request.getAttribute("prepopFields");
+Set<String> encryptedFields = new HashSet<String>();
+encryptedFields.add("creditCardNumber");
+encryptedFields.add("cardSecurityCode");
+encryptedFields.add("creditCardType");
+encryptedFields.add("creditCardExpirationYear");
+encryptedFields.add("creditCardExpirationMonth");
+%>
 
 var prepopulateFields = {
-	creditCardAddress1:"123 Any Street", 
-	creditCardAddress2:"Suite #999",
-	creditCardCountry:"USA",
-	creditCardState:"California",
-	creditCardType:"Visa",
-	creditCardHolderName:"John Doe"	
+	<%
+		if(props != null) {
+			Iterator iterator = props.keySet().iterator();
+			while(iterator.hasNext()) {
+				String key = (String)iterator.next();
+				if(!encryptedFields.contains(key)) {
+					String value = props.getProperty(key);
+	%>
+	<%=key%>:"<%=value%>"<%=(iterator.hasNext() ? "," : "")%>
+	<%
+				}
+			}
+		}
+	%>
 };
 
 var params = {
+	<%
+		if(props != null) {
+			Iterator iterator = props.keySet().iterator();
+			while(iterator.hasNext()) {
+				String key = (String)iterator.next();
+				if(encryptedFields.contains(key)) {
+					String value = props.getProperty(key);
+	%>
+	field_<%=key%>:"<%=value%>",
+	<%
+				}
+			}
+		}
+	%>
 	tenantId:"<%=request.getAttribute("tenantId")%>", 
 	id:"<%=request.getAttribute("id")%>",
 	token:"<%=request.getAttribute("token")%>",
@@ -61,21 +96,8 @@ function backHomepage() {
 </script>
 </head>
 <body>
-	<table border="0" align="center" style="margin-top: 80px; width: 600px; height: 120px;">
-		<tr>
-			<td><font size="5" style="margin-left: 13px; height: 80px;">Inline, Submit Button Inside Hosted Page.</font></td>
-		</tr>
-		<tr>
-			<td>
-				<button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick="backHomepage()" style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button>
-			</td>
-		</tr>
-			
-	</table>
-	<table border="0" align="center" style="margin-top: 20px; width: 600px; height: 120px;">
-		<tr>
-			<td><div id="zuora_payment"></div></td>
-		</tr>
-	</table>
+	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Inline, Submit Button Inside Hosted Page.</font></div>
+	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick="backHomepage()" style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="title"><div id="zuora_payment"></div></div>
 </body>
 </html>

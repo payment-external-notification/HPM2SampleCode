@@ -31,6 +31,11 @@ import javax.servlet.ServletContextListener;
 
 import com.zuora.demo.hosted.lite.util.HPMHelper;
 
+/**
+ * LoadConfigurationListener is a servlet context listener, and will load HPM configuration file when the web application starts. 
+ * 
+ * @author Tony.Liu, Chunyu.Jia. 
+ */
 public class LoadConfigurationListener implements ServletContextListener {
 
 	@Override
