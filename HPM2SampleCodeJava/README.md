@@ -2,7 +2,7 @@ HPM2SampleCodeJava is JEE dynamic web application eclipse project which demonstr
 
 
 Requirement:
-————————————
+-----------
 1. JDK 1.6.
 	
 2. Eclipse 3.7
@@ -11,7 +11,7 @@ Requirement:
 
 
 Usage Steps:
-————————————
+------------
 1. Import this project into Eclipse.
 	
 2. Modify the file HPM2SampleCodeJava/WebContent/WEB-INF/conf/configuration.properties to set HPM configurations. Here are the descriptions of the properties in it:
