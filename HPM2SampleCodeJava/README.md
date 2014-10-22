@@ -1,4 +1,4 @@
-HPM2SampleCodeJava is JEE dynamic web application eclipse project which demonstrates how to utilize HPM2.0 in your commerce web application. 
+HPM2SampleCodeJava is Java EE dynamic web application eclipse project which demonstrates how to utilize HPM2.0 in your commerce web application. 
 
 
 REQUIREMENTS:
