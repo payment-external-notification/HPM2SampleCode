@@ -1,5 +1,7 @@
 HPM2SampleCodeJava is Java EE dynamic web application eclipse project which demonstrates how to utilize HPM2.0 in your commerce web application. 
 
+For more information on HPM2.0 please refer to the relevant document on Zuora Knowledge Center: http://knowledgecenter.zuora.com/CB_Commerce/Hosted_Commerce_Pages/Payment_Pages_2.0.
+
 
 REQUIREMENTS:
 -----------
