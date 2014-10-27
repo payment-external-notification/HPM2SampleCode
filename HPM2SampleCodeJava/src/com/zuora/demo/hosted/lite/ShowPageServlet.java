@@ -84,8 +84,11 @@ public class ShowPageServlet extends HttpServlet {
 			req.setAttribute("locale", req.getParameter("locale") != null ? req.getParameter("locale") : "");
 			req.setAttribute("tenantId", result.getString("tenantId"));
 			req.setAttribute("token", result.getString("token"));
-			req.setAttribute("signature", result.getString("signature"));			
+			req.setAttribute("signature", result.getString("signature"));
+			req.setAttribute("jsPath", hpmHelper.getJsPath());
 		}catch(Exception e) {
+			// TODO: Error handling code should be added here.
+			
 			System.out.println("Error happened during generating signature.");
 			
 			e.printStackTrace();
@@ -97,14 +100,19 @@ public class ShowPageServlet extends HttpServlet {
 			// Set pre-populate fields.
 			Properties props = new Properties();
 			props.load(new FileInputStream(req.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
-			for(String key : new String[]{"creditCardNumber", "cardSecurityCode", "creditCardType", "creditCardExpirationYear", "creditCardExpirationMonth"}) {
+			
+			// Encrypt PCI pre-populate fields.
+			for(String key : new String[]{"creditCardNumber", "cardSecurityCode", "creditCardExpirationYear", "creditCardExpirationMonth"}) {
 				String value = props.getProperty(key);
 				if(value != null && !"".equals(value)) {
 					props.setProperty(key, hpmHelper.encrypt(value));
 				}
 			}
+			
 			req.setAttribute("prepopFields", props);			
 		} catch (Exception e) {
+			// TODO: Error handling code should be added here.
+			
 			System.out.println("Error happened during encrypting pre-populate fields.");
 			
 			e.printStackTrace();
@@ -113,8 +121,7 @@ public class ShowPageServlet extends HttpServlet {
 		}
 				
 		// Other variables.
-		req.setAttribute("pageName", pageName);
-		req.setAttribute("jsPath", hpmHelper.getJsPath());
+		req.setAttribute("pageName", pageName);		
 		
 		if("overlay".equals(req.getParameter("style"))) {
 			req.getRequestDispatcher("/Overlay.jsp").forward(req, resp);

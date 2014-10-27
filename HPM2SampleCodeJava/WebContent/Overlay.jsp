@@ -18,11 +18,11 @@ Properties props = (Properties)request.getAttribute("prepopFields");
 Set<String> encryptedFields = new HashSet<String>();
 encryptedFields.add("creditCardNumber");
 encryptedFields.add("cardSecurityCode");
-encryptedFields.add("creditCardType");
 encryptedFields.add("creditCardExpirationYear");
 encryptedFields.add("creditCardExpirationMonth");
 %>
 
+// Set non-PCI pre-populate fields.
 var prepopulateFields = {
 	<%
 		if(props != null) {
@@ -40,6 +40,7 @@ var prepopulateFields = {
 	%>
 };
 
+// Set HPM parameters, passthrough and PCI pre-populate fields.
 var params = {
 	<%
 		if(props != null) {
@@ -72,16 +73,28 @@ var params = {
 	field_passthrough5:"Overlay"
 };
 
-var callback = function (response) {
+function forwardCallbackURL(response) {
+	// Simply forward to the callback url.
 	var callbackUrl = "<%=request.getContextPath()%>/callback?";
 	for(id in response) {
-		if(callbackUrl.indexOf("&")<0) {
-			callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";
-		} else {
-			callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
-		}
+		callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
 	}
 	window.location.replace(callbackUrl);
+} 
+
+var callback = function (response) {
+    if(response.success) {
+    	// Submitting hosted page succeeds. Business logic code may be added here. Simply forward to the callback url in sample code. 
+    	forwardCallbackURL(response);
+    } else {
+        if(response.responsetFrom == "Response_From_Submit_Page") {
+            // Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
+        	forwardCallbackURL(response);
+        } else {
+            // Submitting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
+        	forwardCallbackURL(response);
+        }
+    }
 };
 
 function showPage() {

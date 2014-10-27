@@ -15,22 +15,32 @@ function backHomepage() {
 </script>
 </head>
 <body>
-	<div class="firstTitle"><font size="5">Submit Response</font></div>
+	<%
+		if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
+	%>
+	<div class="firstTitle"><font size="5" style="margin-left: 75px; height: 80px;">Hosted Page Submission Response</font></div>
+	<%
+		} else {
+	%>
+	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Hosted Page Loading Response</font></div>
+	<%
+		}
+	%>
 	<div class="item"><font size="3">success: <%=request.getParameter("success") %></font></div>
-		<%
-			if(!"true".equals(request.getParameter("success"))) {
-		%>
+	<%
+		if(!"true".equals(request.getParameter("success"))) {
+	%>
 	<div class="item"><font size="3">errorMessage: <%=request.getParameter("errorMessage") %></font></div>
-		<% 		
-			}
-		%>
-		<%
-			if(!"Inline_ButtonOut".equals(request.getParameter("field_passthrough5"))) {
-		%>
-	<div class="item"><button onclick="backHomepage()" style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
-		<%
-			}
-		%>
+	<% 		
+		}
+	%>
+	<%
+		if(!"Inline_ButtonOut".equals(request.getParameter("field_passthrough5"))) {
+	%>
+	<div class="item"><button onclick="backHomepage()" style="margin-left: 150px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<%
+		}
+	%>
 </body>
 </html>
 

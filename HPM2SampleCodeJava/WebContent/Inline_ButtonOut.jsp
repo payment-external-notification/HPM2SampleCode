@@ -18,11 +18,11 @@ Properties props = (Properties)request.getAttribute("prepopFields");
 Set<String> encryptedFields = new HashSet<String>();
 encryptedFields.add("creditCardNumber");
 encryptedFields.add("cardSecurityCode");
-encryptedFields.add("creditCardType");
 encryptedFields.add("creditCardExpirationYear");
 encryptedFields.add("creditCardExpirationMonth");
 %>
 
+// Set non-PCI pre-populate fields.
 var prepopulateFields = {
 	<%
 		if(props != null) {
@@ -40,6 +40,7 @@ var prepopulateFields = {
 	%>
 };
 
+// Set HPM parameters, passthrough and PCI pre-populate fields.
 var params = {
 	<%
 		if(props != null) {
@@ -72,10 +73,25 @@ var params = {
 	field_passthrough5:"Inline_ButtonOut"
 };
 
+function forwardCallbackURL(response) {
+	var callbackUrl = "<%=request.getContextPath()%>/callback?";
+	for(id in response) {
+		callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
+	}
+	window.location.replace(callbackUrl);
+} 
+
+var callback = function (response) {
+    if(!response.success) {
+    	// Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
+    	forwardCallbackURL(response);
+    }
+};
+
 function showPage() {
 	document.getElementById("showPage").disabled = true;
 	
-	Z.render(params,prepopulateFields,null);
+	Z.render(params,prepopulateFields,callback);
 	
 	document.getElementById("submit").style.display = "inline";
 }

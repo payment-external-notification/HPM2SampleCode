@@ -48,7 +48,9 @@ public class LoadConfigurationListener implements ServletContextListener {
 			String webinfRealPath = sce.getServletContext().getRealPath("WEB-INF");
 			HPMHelper hpmHelper = HPMHelper.getInstance();		
 			hpmHelper.loadConfiguration(webinfRealPath + (String)sce.getServletContext().getInitParameter("zuora.hpm.configuration"));
-		} catch (Exception e) {			
+		} catch (Exception e) {
+			// TODO: Error handling code should be added here.
+			
 			System.out.println("Could not load HPM configuration file.");
 			
 			e.printStackTrace();

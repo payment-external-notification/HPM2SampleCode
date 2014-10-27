@@ -37,8 +37,8 @@ import com.zuora.demo.hosted.lite.util.HPMHelper;
 
 /**
  * CallbackServlet is called after 
- * 		1. failed to display Hosted Page
- * 		2. succeeded and failed to submit Hosted Page
+ * 		1. loading Hosted Page fails
+ * 		2. submitting Hosted Page succeeds or fails
  * 
  * @author Tony.Liu, Chunyu.Jia.
  */
@@ -56,14 +56,17 @@ public class CallbackServlet extends HttpServlet {
 			System.out.println((String)key + " : " + req.getParameter((String)key));
 		}
 		
-		// Validate signature.
+		// If submitting Hosted Page succeeds, validate signature.
 		try {
-			if(req.getParameter("signature") != null && req.getParameter("field_passthrough4") != null ) {
-				if(!hpmHelper.isValidSignature(req.getParameter("field_passthrough4"), req.getParameter("signature"))) {
+			if("Response_From_Submit_Page".equals(req.getParameter("responseFrom")) && "true".equals(req.getParameter("success"))) {
+				String pageName = req.getParameter("field_passthrough4");
+				if(req.getParameter("signature") == null || !hpmHelper.isValidSignature(pageName, req.getParameter("signature"))) {
 					throw new Exception("Invalid signature.");					
 				}
 			}
 		} catch (Exception e) {
+			// TODO: Error handling code should be added here.
+			
 			System.out.println("Error happened during validating signature.");
 			
 			e.printStackTrace();
