@@ -5,11 +5,11 @@ For more information on HPM2.0 please refer to the relevant document on Zuora Kn
 
 REQUIREMENTS:
 -----------
-1. JDK 1.6.
+1. JDK 1.5 or above.
 	
-2. Eclipse 3.7
+2. Eclipse 3.7 or above
 	
-3. Tomcat 7.0 or other servlet container.
+3. Tomcat 5.0.x or above.
 
 
 RUNNING THE SAMPLE:
@@ -42,9 +42,9 @@ RUNNING THE SAMPLE:
 	
 4. Modify the Hosted Page configurtions in Zuora application.
 	 
-   Hosted Domain - set to the domain which HPM2SampleCodeJava will run at. For example: http://localhost:8080
+   Hosted Domain - set to the domain which this sample application will run at. For example: http://localhost:8080
 	 
-   Callback Path - set to HPM2SampleCodeJava/callback.
+   Callback Path - set to HPM2SampleCodeJava/callback within which 'HPM2SampleCodeJava' is the path of this sample application.
 	
 5. Build this project.
 	
