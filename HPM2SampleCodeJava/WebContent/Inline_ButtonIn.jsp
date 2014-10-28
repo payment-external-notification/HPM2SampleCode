@@ -86,11 +86,11 @@ var callback = function (response) {
     	// Submitting hosted page succeeds. Business logic code may be added here. Simply forward to the callback url in sample code.
     	forwardCallbackURL(response);
     } else {
-        if(response.responsetFrom == "Response_From_Submit_Page") {
-            // Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
-        	forwardCallbackURL(response);
-        } else {
+        if(response.responseFrom == "Response_From_Submit_Page") {
             // Submitting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
+            forwardCallbackURL(response);
+        } else {
+            // Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
         	forwardCallbackURL(response);
         }
     }
