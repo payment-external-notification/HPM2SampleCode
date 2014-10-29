@@ -28,7 +28,7 @@ RUNNING THE SAMPLE:
 		
    publicKey - Public key, it can be retrieved in Zuora application through the following path: Settings > Administration Settings > Security Policies > Get Key.
 		
-   jsPath - Javascript library path, for the production environment: https://static.zuora.com/Resources/libs/hosted/1.0.0/zuora-min.js; for the API Sandbox environment: https://apisandboxstatic.zuora.com/Resources/libs/hosted/1.0.0/zuora-min.js.
+   jsPath - Javascript library path, for the production environment: https://static.zuora.com/Resources/libs/hosted/1.1.0/zuora-min.js; for the API Sandbox environment: https://apisandboxstatic.zuora.com/Resources/libs/hosted/1.1.0/zuora-min.js.
 
    Multiple Hosted Pages can be configured in configuration.properties. Each Hosted Page should has an unique page name. The property name of Hosted Page should start with 'page.' following page name. Here are descriptions of Hosted Page properties:
 		
