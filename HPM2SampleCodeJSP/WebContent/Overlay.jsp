@@ -47,7 +47,7 @@ var params = {
 	field_passthrough2:200,
 	field_passthrough3:300,
 	field_passthrough4:"<%=request.getParameter("pageName")%>",
-	field_passthrough5:"Overlay"
+	field_passthrough5:500
 };
 
 //Set pre-populate fields.
@@ -108,15 +108,11 @@ var callback = function (response) {
 function showPage() {
 	Z.render(params,prepopulateFields,callback);
 }
-
-function backHomepage() {
-	window.location.replace("Homepage.jsp");
-}
 </script>
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 140px; height: 80px;">Overlay Hosted Page</font></div>
-	<div class="item"><button onclick="showPage()" style="margin-left: 100px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick="backHomepage()" style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="item"><button onclick="showPage()" style="margin-left: 100px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")' style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 	<div class="title"><div id="zuora_payment"></div></div>
 </body>
 </html>

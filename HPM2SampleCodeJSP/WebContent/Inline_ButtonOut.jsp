@@ -47,7 +47,7 @@ var params = {
 	field_passthrough2:200,
 	field_passthrough3:300,
 	field_passthrough4:"<%=request.getParameter("pageName")%>",
-	field_passthrough5:"Inline_ButtonOut",
+	field_passthrough5:500,
 	retainValues:"true"
 };
 	
@@ -85,18 +85,14 @@ prepopulateFields["<%=key%>"]="<%=value%>";
 	}
 %>
 
-function forwardCallbackURL(response) {
-	var callbackUrl = "Callback.jsp?";
-	for(id in response) {
-		callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
-	}
-	window.location.replace(callbackUrl);
-} 
-
 var callback = function (response) {
     if(!response.success) {
     	// Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
-    	forwardCallbackURL(response);
+    	var callbackUrl = "Callback.jsp?";
+    	for(id in response) {
+    		callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
+    	}
+    	window.location.replace(callbackUrl);
     }
 };
 
@@ -107,6 +103,7 @@ function showPage() {
 	zuoraDiv.innerHTML="";
 	Z.render(params,prepopulateFields,callback);
 	
+	// Display the submit button.
 	document.getElementById("submit").style.display = "inline";
 }
 
@@ -116,19 +113,14 @@ function submitPage() {
 	return false;
 }
 
-function backHomepage() {
-	window.location.replace("Homepage.jsp");
-}
-
 function submitSucceed() {
-	// Submitting hosted page succeeds, disalbe the submit button.
+	// Submitting hosted page succeeds, disable the submit button.
 	document.getElementById("submitButton").disabled = true;
 }
 
 function submitFail(errorMessage) {
 	// Submitting hosted page fails, display error message and reload hosted page with retained values.
 	document.getElementById("errorMessage").innerHTML="Hosted Page fails to submit. The reason is: " + errorMessage;		
-	
 	var zuoraDiv = document.getElementById('zuora_payment');
 	zuoraDiv.innerHTML="";
 	Z.render(params,null,callback);
@@ -137,7 +129,7 @@ function submitFail(errorMessage) {
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Inline, Submit Button Outside Hosted Page.</font></div>
-	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick="backHomepage()"  style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")'  style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 	<div class="item"><font id="errorMessage" size="3" color="red"></font></div>
 	<div class="title"><div id="zuora_payment"></div></div>
 	<div class="item"><div id="submit" style="display:none"><button id="submitButton" onclick="return submitPage()" style="margin-left: 270px; width: 66px; height: 24px; margin-top: 10px;">Submit</button></div></div>

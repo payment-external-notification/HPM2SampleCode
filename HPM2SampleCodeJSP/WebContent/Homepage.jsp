@@ -3,7 +3,7 @@
 <%@ page import="java.util.Iterator" %>
 <%
 	HPMHelper hpmHelper = HPMHelper.getInstance();
-	hpmHelper.loadConfiguration(request.getServletContext().getRealPath("WEB-INF") + "/conf/configration.properties");
+	hpmHelper.loadConfiguration(request.getServletContext().getRealPath("WEB-INF") + "/conf/configuration.properties");
 %>
 <!DOCTYPE html>
 <html>

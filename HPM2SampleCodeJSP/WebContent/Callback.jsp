@@ -5,18 +5,18 @@
 
 	String message = "";
 	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
-		// Validate signature. Signature's expired time is 30 minutes.
-		try {
-			if(!hpmHelper.isValidSignature(request.getParameter("field_passthrough4"), request.getParameter("signature"), 1000 * 60 * 30)) {
-				throw new Exception("Signature is invalid.");
-			}
-		} catch(Exception e) {
-			// TODO: Error handling code should be added here.			
-			
-			throw e;
-		}
-		
 		if("true".equals(request.getParameter("success"))) {
+			// Validate signature. Signature's expired time is 30 minutes.
+			try {
+				if(!hpmHelper.isValidSignature(request.getParameter("field_passthrough4"), request.getParameter("signature"), 1000 * 60 * 30)) {
+					throw new Exception("Signature is invalid.");
+				}
+			} catch(Exception e) {
+				// TODO: Error handling code should be added here.			
+				
+				throw e;
+			}
+			
 			// Submitting hosted page succeeds.
 			message = "Hosted Page submits successfully. The payment method id is " + request.getParameter("refId") + ".";
 		} else {
@@ -36,38 +36,37 @@
 <link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Result</title>
 <script type="text/javascript">
-function backHomepage() {
-	window.location.replace("Homepage.jsp");
+function hideBackToHomepage() {
+	if(window.parent != window) {
+		// Inline, submit button outside hosted page. Hide the 'Back To Homepage' button.
+		document.getElementById("backToHomepage").style.display = "none";
+	}	
 }
 </script>
 </head>
-<body>
+<body onload="hideBackToHomepage()">
 	<div class="firstTitle"><font size="4"><%=message%></font></div>
-	<%
-		if(!"Inline_ButtonOut".equals(request.getParameter("field_passthrough5"))) {
-	%>
-	<div class="item"><button onclick="backHomepage()" style="margin-left: 150px; width: 140px; height: 24px;">Back To Homepage</button></div>
-	<%
-		}
-	%>
+	<div id="backToHomepage" class="item"><button onclick='window.location.replace("Homepage.jsp")' style="margin-left: 150px; width: 140px; height: 24px;">Back To Homepage</button></div>
 </body>
 </html>
 
 <script type="text/javascript">
-<%
-if("Inline_ButtonOut".equals(request.getParameter("field_passthrough5"))) {
-	// Inline, submit button outside hosted page. 
-	if("true".equals(request.getParameter("success"))) {
-		// Submitting hosted page succeeds.
-%>
-window.parent.submitSucceed();
-<%
-	} else {
-		// Submitting hosted page fails.
-%>
-window.parent.submitFail("<%=request.getParameter("errorMessage")%>");
-<%
+if(window.parent != window) {
+	// Inline, submit button outside hosted page.
+	<%
+	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
+		if("true".equals(request.getParameter("success"))) {
+			// Submitting hosted page succeeds.
+	%>
+	window.parent.submitSucceed();
+	<%
+		} else {
+			// Submitting hosted page fails.
+	%>
+	window.parent.submitFail("<%=request.getParameter("errorMessage").replace('\n', ' ')%>");
+	<%
+		}
 	}
+	%>	
 }
-%>
 </script>

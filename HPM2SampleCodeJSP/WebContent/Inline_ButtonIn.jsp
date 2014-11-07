@@ -47,7 +47,7 @@ var params = {
 	field_passthrough2:200,
 	field_passthrough3:300,
 	field_passthrough4:"<%=request.getParameter("pageName")%>",
-	field_passthrough5:"Inline_ButtonIn"
+	field_passthrough5:500
 };
 
 // Set pre-populate fields.
@@ -112,15 +112,11 @@ function showPage() {
 	
 	Z.render(params,prepopulateFields,callback);
 }
-
-function backHomepage() {
-	window.location.replace("Homepage.jsp");
-}
 </script>
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Inline, Submit Button Inside Hosted Page.</font></div>
-	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick="backHomepage()" style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")' style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 	<div class="title"><div id="zuora_payment"></div></div>
 </body>
 </html>
