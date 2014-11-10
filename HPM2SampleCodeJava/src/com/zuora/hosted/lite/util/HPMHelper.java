@@ -24,7 +24,7 @@
  *   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.zuora.demo.hosted.lite.util;
+package com.zuora.hosted.lite.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.security.Key;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ import org.bouncycastle.openssl.PEMReader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.zuora.demo.hosted.lite.support.BypassSSLSocketFactory;
+import com.zuora.hosted.lite.support.BypassSSLSocketFactory;
 
 /**
  * HPM utility class which can 
@@ -143,6 +144,63 @@ public class HPMHelper {
 	}
 	
 	/**
+	 * Signature contains the signature retrieved from Zuora REST API.
+	 * 
+	 * @author Tony.Liu, Chunyu.Jia.
+	 */
+	public static class Signature {
+		private HPMHelper helper = HPMHelper.getInstance();
+		private HPMPage page;		
+		private String signature;
+		private String token;
+		private String tenantId;
+		
+		public String getSignature() {
+			return signature;
+		}
+		
+		public void setSignature(String signature) {
+			this.signature = signature;
+		}
+		
+		public String getToken() {
+			return token;
+		}
+		
+		public void setToken(String token) {
+			this.token = token;
+		}
+		
+		public String getTenantId() {
+			return tenantId;
+		}
+		
+		public void setTenantId(String tenantId) {
+			this.tenantId = tenantId;
+		}
+		
+		public void setPage(HPMPage page) {
+			this.page = page;
+		}
+		
+		public String getPageId() {
+			return page.getPageId();
+		}
+		
+		public String getPublicKey() {
+			return helper.getPublicKey();
+		}
+		
+		public String getUrl() {
+			return helper.getUrl();
+		}
+		
+		public String getPaymentGateway() {
+			return page.getPaymentGateway();
+		}
+	}
+	
+	/**
 	 * Load HPM configuration file.
 	 * 
 	 * @param configFile - the HPM configuration file path
@@ -159,6 +217,7 @@ public class HPMHelper {
 		publicKeyString = props.getProperty("publicKey");
 		jsPath = props.getProperty("jsPath");
 		
+		pages.clear();
 		for(Object key : props.keySet()) {
 			Pattern pattern = Pattern.compile("page\\.([^\\.]+)\\.([^\\.]+)");
 			Matcher matcher = pattern.matcher((String)key);
@@ -271,10 +330,10 @@ public class HPMHelper {
 	 * Generate signature using Hosted Page configuration
 	 * 
 	 * @param pageName - Page Name specified in HPM configuration file
-	 * @return JSON object returned from generating signature REST call
+	 * @return Signature object returned from generating signature REST call
 	 * @throws Exception
 	 */
-	public JSONObject generateSignaure(String pageName) throws Exception {
+	public Signature generateSignaure(String pageName) throws Exception {
 		HPMPage page = pages.get(pageName);
 		if(page == null) {
 			throw new Exception("Could not find Hosted Page configurations for " + pageName);
@@ -310,8 +369,18 @@ public class HPMHelper {
         // Parse the response returned from ZUORA Signature API End Point
         byte[] res = postRequest.getResponseBody();
         String s = new String(res);
-	    JSONObject json = new JSONObject(s);
-	    return json;
+	    JSONObject result = new JSONObject(s);
+	    if(!result.getBoolean("success")) {
+	    	throw new Exception("Fail to generate signature. The reason is " + result.getString("reasons"));
+	    }
+	        
+	    Signature signature = new Signature();
+	    signature.setPage(page);
+	    signature.setTenantId(result.getString("tenantId"));
+	    signature.setToken(result.getString("token"));
+	    signature.setSignature(result.getString("signature"));
+	    
+	    return signature;
 	}
 
 	/**
@@ -319,10 +388,11 @@ public class HPMHelper {
 	 * 
 	 * @param pageName - Page Name specified in HPM configuration file
 	 * @param signature - signature need to validate
+	 * @param expiredAfter - expired time in millisecond after the signature is created
 	 * @return true if the signature is valid; otherwise, false 
 	 * @throws Exception
 	 */
-	public boolean isValidSignature(String pageName, String signature) throws Exception {
+	public boolean isValidSignature(String pageName, String signature, long expiredAfter) throws Exception {
 		HPMPage page = pages.get(pageName);
 		if(page == null) {
 			throw new Exception("Could not find Hosted Page configurations for " + pageName);
@@ -352,6 +422,10 @@ public class HPMHelper {
 		}
 		
 		if(!pageId_signature.equals(page.getPageId())) {
+			return false;
+		}
+		
+		if((new Date()).getTime() > (Long.parseLong(timestamp_signature) + expiredAfter)) {
 			return false;
 		}
 		

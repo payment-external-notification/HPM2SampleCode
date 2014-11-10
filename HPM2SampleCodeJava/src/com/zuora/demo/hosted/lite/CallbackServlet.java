@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.zuora.demo.hosted.lite.util.HPMHelper;
+import com.zuora.hosted.lite.util.HPMHelper;
 
 /**
  * CallbackServlet is called after 
@@ -47,33 +47,45 @@ public class CallbackServlet extends HttpServlet {
 	private static final long serialVersionUID = 6280395152816828551L;
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HPMHelper hpmHelper = HPMHelper.getInstance();
 		
 		// Print out callback parameters.
 		System.out.println("Callback parameters are:");
-		for(Object key : req.getParameterMap().keySet()) {
-			System.out.println((String)key + " : " + req.getParameter((String)key));
+		for(Object key : request.getParameterMap().keySet()) {
+			System.out.println((String)key + " : " + request.getParameter((String)key));
 		}
 		
-		// If submitting Hosted Page succeeds, validate signature.
-		try {
-			if("Response_From_Submit_Page".equals(req.getParameter("responseFrom")) && "true".equals(req.getParameter("success"))) {
-				String pageName = req.getParameter("field_passthrough4");
-				if(req.getParameter("signature") == null || !hpmHelper.isValidSignature(pageName, req.getParameter("signature"))) {
-					throw new Exception("Invalid signature.");					
+		String message = "";
+		if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
+			if("true".equals(request.getParameter("success"))) {
+				// Validate signature. Signature's expired time is 30 minutes.
+				try {
+					if(!hpmHelper.isValidSignature(request.getParameter("field_passthrough4"), request.getParameter("signature"), 1000 * 60 * 30)) {
+						throw new Exception("Signature is invalid.");
+					}
+				} catch(Exception e) {
+					// TODO: Error handling code should be added here.
+					
+					System.out.println("Error happened during validating signature.");
+					
+					e.printStackTrace();
+					
+					throw new ServletException("Error happened during validating signature. " + e.getMessage());
 				}
-			}
-		} catch (Exception e) {
-			// TODO: Error handling code should be added here.
-			
-			System.out.println("Error happened during validating signature.");
-			
-			e.printStackTrace();
-			
-			throw new ServletException("Error happened during validating signature. " + e.getMessage());
+				
+				// Submitting hosted page succeeds.
+				message = "Hosted Page submits successfully. The payment method id is " + request.getParameter("refId") + ".";
+			} else {
+				// Submitting hosted page fails.
+				message = "Hosted Page fails to submit. The reason is: " + request.getParameter("errorMessage") + ".";
+			}		
+		} else {
+			// Requesting hosted page fails.
+			message = "Hosted Page fails to load. The reason is: " + request.getParameter("errorMessage") + ".";
 		}
+		request.setAttribute("message", message);			
 		
-		req.getRequestDispatcher("/Result.jsp").forward(req, resp);
+		request.getRequestDispatcher("/Result.jsp").forward(request, response);
 	}
 }

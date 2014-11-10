@@ -1,4 +1,4 @@
-<%@page import="com.zuora.demo.hosted.lite.util.HPMHelper" %>
+<%@page import="com.zuora.hosted.lite.util.HPMHelper" %>
 <%@page import="java.util.Iterator" %>
 <%
 	HPMHelper hpmHelper = HPMHelper.getInstance();
@@ -57,8 +57,7 @@ function showPage() {
 		return;		
 	}
 	
-	var url = "<%=request.getContextPath()%>/showPage?"; 
-	
+	var url = "showPage?"; 	
 	url += "pageName=" + pageSelect.options[pageSelect.selectedIndex].text;
 	
 	var radioArray = document.getElementsByName("style");

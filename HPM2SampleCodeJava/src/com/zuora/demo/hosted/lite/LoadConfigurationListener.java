@@ -29,7 +29,7 @@ package com.zuora.demo.hosted.lite;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.zuora.demo.hosted.lite.util.HPMHelper;
+import com.zuora.hosted.lite.util.HPMHelper;
 
 /**
  * LoadConfigurationListener is a servlet context listener, and will load HPM configuration file when the web application starts. 

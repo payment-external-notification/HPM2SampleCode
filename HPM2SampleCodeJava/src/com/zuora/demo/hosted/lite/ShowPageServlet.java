@@ -35,9 +35,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONObject;
-
-import com.zuora.demo.hosted.lite.util.HPMHelper;
+import com.zuora.hosted.lite.util.HPMHelper;
+import com.zuora.hosted.lite.util.HPMHelper.Signature;
 
 /**
  * ShowPageServlet generates signature and set the information used to render Hosted Page. 
@@ -59,33 +58,10 @@ public class ShowPageServlet extends HttpServlet {
 			}
 			
 			// Generate signature.
-			JSONObject result = hpmHelper.generateSignaure(pageName);
-			
-			// Validate 'success' field.
-			if(!result.getBoolean("success")) {
-				throw new Exception("Fail to generate signature. The reason is " + result.getString("reasons"));
-			}
-			
-			// Validate public key.
-			if(!hpmHelper.isValidPublicKey(result.getString("key"))) {
-				throw new Exception("The public key in HPM configuration file and the one returned from Zuora are different. Please update the public key in HPM Configuration file with the latest one from Zuora UI.");
-			}
-			
-			// Validate signature.
-			if(!hpmHelper.isValidSignature(pageName, result.getString("signature"))) {
-				throw new Exception("Invalid signature.");
-			}
-			
+			Signature signature = hpmHelper.generateSignaure(pageName);
+		
 			// Set Hosted Page parameters.
-			req.setAttribute("url", hpmHelper.getUrl());
-			req.setAttribute("paymentGateway", hpmHelper.getPage(pageName).getPaymentGateway());
-			req.setAttribute("id", hpmHelper.getPage(pageName).getPageId());
-			req.setAttribute("key", hpmHelper.getPublicKey());
-			req.setAttribute("locale", req.getParameter("locale") != null ? req.getParameter("locale") : "");
-			req.setAttribute("tenantId", result.getString("tenantId"));
-			req.setAttribute("token", result.getString("token"));
-			req.setAttribute("signature", result.getString("signature"));
-			req.setAttribute("jsPath", hpmHelper.getJsPath());
+			req.setAttribute("signature", signature);
 		}catch(Exception e) {
 			// TODO: Error handling code should be added here.
 			
@@ -101,15 +77,18 @@ public class ShowPageServlet extends HttpServlet {
 			Properties props = new Properties();
 			props.load(new FileInputStream(req.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
 			
+			Properties pciPrepopulateFields = new Properties();
 			// Encrypt PCI pre-populate fields.
 			for(String key : new String[]{"creditCardNumber", "cardSecurityCode", "creditCardExpirationYear", "creditCardExpirationMonth"}) {
 				String value = props.getProperty(key);
 				if(value != null && !"".equals(value)) {
-					props.setProperty(key, hpmHelper.encrypt(value));
+					pciPrepopulateFields.setProperty(key, hpmHelper.encrypt(value));
 				}
+				props.remove(key);
 			}
 			
-			req.setAttribute("prepopFields", props);			
+			req.setAttribute("pciPrepopFields", pciPrepopulateFields);
+			req.setAttribute("nonpciPrepopFields", props);
 		} catch (Exception e) {
 			// TODO: Error handling code should be added here.
 			

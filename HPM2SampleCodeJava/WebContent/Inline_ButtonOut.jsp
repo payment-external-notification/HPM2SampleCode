@@ -1,9 +1,12 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.zuora.hosted.lite.util.HPMHelper" %>
+<%@ page import="com.zuora.hosted.lite.util.HPMHelper.Signature" %>
 <%@ page import="java.util.Properties" %>
-<%@page import="java.util.Iterator" %>
-<%@page import="java.util.HashSet" %>
-<%@page import="java.util.Set" %>   
+<%@ page import="java.util.Iterator" %>
+<%
+	HPMHelper hpmHelper = HPMHelper.getInstance();
+	Signature signature = (Signature)request.getAttribute("signature");	
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,101 +14,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Inline, Button Out.</title>
-<script type="text/javascript" src='<%=request.getAttribute("jsPath")%>'></script>
+<script type="text/javascript" src='<%=hpmHelper.getJsPath()%>'></script>
 <script type="text/javascript">
-<%
-Properties props = (Properties)request.getAttribute("prepopFields");
-Set<String> encryptedFields = new HashSet<String>();
-encryptedFields.add("creditCardNumber");
-encryptedFields.add("cardSecurityCode");
-encryptedFields.add("creditCardExpirationYear");
-encryptedFields.add("creditCardExpirationMonth");
-%>
-
-// Set non-PCI pre-populate fields.
+//non-PCI pre-populate fields.
 var prepopulateFields = {
-	<%
-		if(props != null) {
-			Iterator iterator = props.keySet().iterator();
-			while(iterator.hasNext()) {
-				String key = (String)iterator.next();
-				if(!encryptedFields.contains(key)) {
-					String value = props.getProperty(key);
-	%>
-	<%=key%>:"<%=value%>"<%=(iterator.hasNext() ? "," : "")%>
-	<%
-				}
-			}
-		}
-	%>
 };
 
-// Set HPM parameters, passthrough and PCI pre-populate fields.
+// HPM parameters, passthrough and PCI pre-populate fields.
 var params = {
-	<%
-		if(props != null) {
-			Iterator iterator = props.keySet().iterator();
-			while(iterator.hasNext()) {
-				String key = (String)iterator.next();
-				if(encryptedFields.contains(key)) {
-					String value = props.getProperty(key);
-	%>
-	field_<%=key%>:"<%=value%>",
-	<%
-				}
-			}
-		}
-	%>
-	tenantId:"<%=request.getAttribute("tenantId")%>", 
-	id:"<%=request.getAttribute("id")%>",
-	token:"<%=request.getAttribute("token")%>",
-	signature:"<%=request.getAttribute("signature")%>",
-	key:"<%=request.getAttribute("key")%>",
+	tenantId:"<%=signature.getTenantId()%>", 
+	id:"<%=signature.getPageId()%>",
+	token:"<%=signature.getToken()%>",
+	signature:"<%=signature.getSignature()%>",
+	key:"<%=signature.getPublicKey()%>",
 	style:"inline",
 	submitEnabled:"false",
-	locale:"<%=request.getAttribute("locale")%>",
-	url:"<%=request.getAttribute("url")%>",
-	paymentGateway:"<%=request.getAttribute("paymentGateway")%>",
+	locale:"<%=request.getParameter("locale")%>",
+	url:"<%=signature.getUrl()%>",
+	paymentGateway:"<%=signature.getPaymentGateway()%>",
 	field_passthrough1:100,
 	field_passthrough2:200,
 	field_passthrough3:300,
-	field_passthrough4:"<%=request.getAttribute("pageName")%>",
-	field_passthrough5:"Inline_ButtonOut"
+	field_passthrough4:"<%=request.getParameter("pageName")%>",
+	field_passthrough5:500,
+	retainValues:"true"
 };
-
-function forwardCallbackURL(response) {
-	var callbackUrl = "<%=request.getContextPath()%>/callback?";
-	for(id in response) {
-		callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
+	
+//Set pre-populate fields.
+<%
+	// Put PCI pre-populate fields to params.
+	Properties prepopFields = (Properties)request.getAttribute("pciPrepopFields");
+	Iterator iterator = prepopFields.keySet().iterator();
+	while(iterator.hasNext()) {
+		String key = (String)iterator.next();
+		String value = prepopFields.getProperty(key);
+%>
+params["field_<%=key%>"]="<%=value%>";
+<%
+	} 
+	
+	// Put non-PCI pre-populate fields to prepopulateFields.
+	prepopFields = (Properties)request.getAttribute("nonpciPrepopFields");
+	iterator = prepopFields.keySet().iterator();
+	while(iterator.hasNext()) {
+		String key = (String)iterator.next();
+		String value = prepopFields.getProperty(key);
+		
+%>
+prepopulateFields["<%=key%>"]="<%=value%>";
+<%
 	}
-	window.location.replace(callbackUrl);
-} 
+%>
 
 var callback = function (response) {
     if(!response.success) {
     	// Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
-    	forwardCallbackURL(response);
+    	var callbackUrl = "callback?";
+    	for(id in response) {
+    		callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
+    	}
+    	window.location.replace(callbackUrl);
     }
 };
 
 function showPage() {
 	document.getElementById("showPage").disabled = true;
 	
+	var zuoraDiv = document.getElementById('zuora_payment');
+	zuoraDiv.innerHTML="";
 	Z.render(params,prepopulateFields,callback);
 	
+	// Display the submit button.
 	document.getElementById("submit").style.display = "inline";
 }
 
-function backHomepage() {
-	window.location.replace("<%=request.getContextPath()%>/Homepage.jsp");
+function submitPage() {
+	document.getElementById('errorMessage').innerHTML='';
+	Z.submit();
+	return false;
 }
 
+function submitSucceed() {
+	// Submitting hosted page succeeds, disable the submit button.
+	document.getElementById("submitButton").disabled = true;
+}
+
+function submitFail(errorMessage) {
+	// Submitting hosted page fails, display error message and reload hosted page with retained values.
+	document.getElementById("errorMessage").innerHTML="Hosted Page fails to submit. The reason is: " + errorMessage;		
+	var zuoraDiv = document.getElementById('zuora_payment');
+	zuoraDiv.innerHTML="";
+	Z.render(params,null,callback);
+}
 </script>
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Inline, Submit Button Outside Hosted Page.</font></div>
-	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick="backHomepage()"  style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")'  style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="item"><font id="errorMessage" size="3" color="red"></font></div>
 	<div class="title"><div id="zuora_payment"></div></div>
-	<div class="item"><div id="submit" style="display:none"><button id="submitButton" onclick="Z.submit();return false;" style="margin-left: 270px; width: 66px; height: 24px; margin-top: 10px;">Submit</button></div></div>
+	<div class="item"><div id="submit" style="display:none"><button id="submitButton" onclick="return submitPage()" style="margin-left: 270px; width: 66px; height: 24px; margin-top: 10px;">Submit</button></div></div>
 </body>
 </html>
