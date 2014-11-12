@@ -29,15 +29,19 @@ package com.zuora.hosted.lite.util;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.Key;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -69,37 +73,37 @@ import com.zuora.hosted.lite.support.BypassSSLSocketFactory;
 public class HPMHelper {
 	
 	private static final int DEFAULT_HTTPS_PORT = 443;
-	
-	private String url;
-	private String endPoint;
-	private String username;
-	private String password;
-	private String publicKeyString;
-	private String jsPath;
-	private Key publicKeyObject;
-	private Map<String, HPMPage> pages;
-	
-	private HPMHelper() {
-		url = "";
-		endPoint = "";
-		username = "";
-		password = "";
-		publicKeyString = "";
-		jsPath = "";
-		pages = new LinkedHashMap<String, HPMPage>();
-	}
-		
-	private static HPMHelper hpmHelper;
+	private static final Set<String> fieldToEncrypt = new HashSet<String>();
 	
 	static {
+		fieldToEncrypt.add("creditCardNumber");
+		fieldToEncrypt.add("cardSecurityCode");
+		fieldToEncrypt.add("creditCardExpirationYear");
+		fieldToEncrypt.add("creditCardExpirationMonth");
+		
 		Security.addProvider(new BouncyCastleProvider());
 	}
 	
-	public synchronized static HPMHelper getInstance() {
-		if(hpmHelper == null) {
-			hpmHelper = new HPMHelper();
-		}
-		return hpmHelper;
+	private static String url = "";
+	private static String endPoint = "";
+	private static String username = "";
+	private static String password = "";
+	private static String publicKeyString = "";
+	private static String jsPath = "";
+	private static String jsVersion ="";
+	private static Key publicKeyObject = null;
+	private static Map<String, HPMPage> pages = new LinkedHashMap<String, HPMPage>();
+	 	
+	public static String getJsPath() {
+		return jsPath;
+	}
+	
+	public static Map<String, HPMPage> getPages() {
+		return pages;
+	}
+	
+	public static HPMPage getPage(String pageName) {
+		return pages.get(pageName);
 	}
 	
 	/**
@@ -144,69 +148,12 @@ public class HPMHelper {
 	}
 	
 	/**
-	 * Signature contains the signature retrieved from Zuora REST API.
-	 * 
-	 * @author Tony.Liu, Chunyu.Jia.
-	 */
-	public static class Signature {
-		private HPMHelper helper = HPMHelper.getInstance();
-		private HPMPage page;		
-		private String signature;
-		private String token;
-		private String tenantId;
-		
-		public String getSignature() {
-			return signature;
-		}
-		
-		public void setSignature(String signature) {
-			this.signature = signature;
-		}
-		
-		public String getToken() {
-			return token;
-		}
-		
-		public void setToken(String token) {
-			this.token = token;
-		}
-		
-		public String getTenantId() {
-			return tenantId;
-		}
-		
-		public void setTenantId(String tenantId) {
-			this.tenantId = tenantId;
-		}
-		
-		public void setPage(HPMPage page) {
-			this.page = page;
-		}
-		
-		public String getPageId() {
-			return page.getPageId();
-		}
-		
-		public String getPublicKey() {
-			return helper.getPublicKey();
-		}
-		
-		public String getUrl() {
-			return helper.getUrl();
-		}
-		
-		public String getPaymentGateway() {
-			return page.getPaymentGateway();
-		}
-	}
-	
-	/**
 	 * Load HPM configuration file.
 	 * 
 	 * @param configFile - the HPM configuration file path
 	 * @throws IOException
 	 */
-	public void loadConfiguration(String configFile) throws IOException {
+	public static void loadConfiguration(String configFile) throws IOException {
 		Properties props = new Properties();
 		props.load(new FileInputStream(configFile));
 		
@@ -216,11 +163,16 @@ public class HPMHelper {
 		password = props.getProperty("password");
 		publicKeyString = props.getProperty("publicKey");
 		jsPath = props.getProperty("jsPath");
+		Pattern pattern = Pattern.compile(".+hosted/([0-1|\\.]+)/zuora.+");
+		Matcher matcher = pattern.matcher(jsPath);
+		if(matcher.matches()) {
+			jsVersion = matcher.group(1);
+		}
 		
 		pages.clear();
 		for(Object key : props.keySet()) {
-			Pattern pattern = Pattern.compile("page\\.([^\\.]+)\\.([^\\.]+)");
-			Matcher matcher = pattern.matcher((String)key);
+			pattern = Pattern.compile("page\\.([^\\.]+)\\.([^\\.]+)");
+			matcher = pattern.matcher((String)key);
 			if(matcher.matches()) {
 				String value = props.getProperty((String)key);
 				
@@ -251,101 +203,70 @@ public class HPMHelper {
 		generatePublicKeyObject();
 	}
 	
-	public String getUrl() {
-		return url;
-	}
-	
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	
-	public String getEndPoint() {
-		return endPoint;
-	}
-	
-	public void setEndPoint(String endPoint) {
-		this.endPoint = endPoint;
-	}
-		
-	public String getUsername() {
-		return username;
-	}
-	
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	
-	public String getPassword() {
-		return password;
-	}
-	
-	public void setPassword(String password) {
-		this.password = password;
-	}	
-	
-	public String getPublicKey() {
-		return publicKeyString;
-	}
-
-	public void setPublicKey(String publicKeyString) throws IOException {
-		this.publicKeyString = publicKeyString;
-		
-		generatePublicKeyObject();
-	}
-
-	public String getJsPath() {
-		return jsPath;
-	}
-
-	public void setJsPath(String jsPath) {
-		this.jsPath = jsPath;
-	}
-	
-	public Map<String, HPMPage> getPages() {
-		return pages;
-	}
-
-	public void setPages(Map<String, HPMPage> pages) {
-		this.pages = pages;
-	}
-
-	private void generatePublicKeyObject() throws IOException {
+	private static void generatePublicKeyObject() throws IOException {
 		PEMReader pemReader = new PEMReader(new StringReader("-----BEGIN PUBLIC KEY-----\n" + publicKeyString + "\n-----END PUBLIC KEY-----"));
 		publicKeyObject = (Key)pemReader.readObject();
 		pemReader.close();
 	}
-		
-	private String buildJsonRequest(String pageId) throws NullPointerException, JSONException {
-	    JSONObject json = new JSONObject();
-	    if(url.toLowerCase().indexOf("https") >= 0) {
-	    	Protocol.registerProtocol("https", new Protocol("https", new BypassSSLSocketFactory(), DEFAULT_HTTPS_PORT));
-	    }
-	    json.put("uri", url);
-	    json.put("method","POST");
-	    json.put("pageId", pageId);
-	    return json.toString();
-	}
-	
+
 	/**
-	 * Generate signature using Hosted Page configuration
+	 * Fill params and encrypt PCI pre-populate fields.
 	 * 
 	 * @param pageName - Page Name specified in HPM configuration file
-	 * @return Signature object returned from generating signature REST call
+	 * @param params - Map of params which will be passed to Z.render. tenantId, id, token, signature, key, url and paymentGateway will be filled by this method. 
+	 * @param prepopulateFields - Map of pre-populate fields which will be passed to Z.render.  
 	 * @throws Exception
 	 */
-	public Signature generateSignaure(String pageName) throws Exception {
+	public static void prepareParamsAndFields(String pageName, Map<String, String> params, Map<String, String> prepopulateFields) throws Exception {
 		HPMPage page = pages.get(pageName);
 		if(page == null) {
 			throw new Exception("Could not find Hosted Page configurations for " + pageName);
 		}
 		
+		JSONObject result = generateSignature(page.getPageId());
+	    
+		params.put("tenantId", result.getString("tenantId"));
+		params.put("id", page.getPageId());
+		params.put("token", result.getString("token"));
+		params.put("signature", result.getString("signature"));
+		params.put("key", publicKeyString);
+		params.put("url", url);
+		params.put("paymentGateway", page.getPaymentGateway());
+		
+		for(Iterator<String> iterator = prepopulateFields.keySet().iterator(); iterator.hasNext(); ) {
+			String key = iterator.next();
+	    	String value = prepopulateFields.get(key);
+	    	if(fieldToEncrypt.contains(key)) {
+	    		value = encrypt(value);
+	    		if("1.0.0".equals(jsVersion) || "1.1.0".equals(jsVersion)) {
+	    			// For zuora.js version 1.0.0 and 1.1.0, PCI pre-populate fields are in params.
+	    			iterator.remove();
+	    			params.put("field_" + key, value);	    			
+	    		} else {
+	    			// For zuora.js version 1.2.0 and later, PCI pre-populate fields are in prepopulateFields.
+	    			prepopulateFields.put(key, value);
+	    		}
+	    	}
+	    }
+		
+		if("1.0.0".equals(jsVersion)) {
+			// For zuora.js version 1.0.0, encode the values in params except url.
+			for(String key : params.keySet()) {
+				if(!"url".equals(key)) {
+					params.put(key, URLEncoder.encode(params.get(key), "UTF-8"));
+				}
+			}
+		}
+	}
+	
+	private static JSONObject generateSignature(String pageId) throws Exception {
 		HttpClient httpClient = new HttpClient();
 		PostMethod postRequest = new PostMethod(endPoint);  
     	postRequest.addRequestHeader("apiAccessKeyId", username);
     	postRequest.addRequestHeader("apiSecretAccessKey", password);
     	postRequest.addRequestHeader("Accept", "application/json");
     	
-    	RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(page.getPageId()), "application/json", "UTF-8");
+    	RequestEntity requestEntity = new StringRequestEntity(buildJsonRequest(pageId), "application/json", "UTF-8");
         postRequest.setRequestEntity(requestEntity);
         
         // Re-try 10 times in case the server is too busy to give you response in time.
@@ -373,31 +294,36 @@ public class HPMHelper {
 	    if(!result.getBoolean("success")) {
 	    	throw new Exception("Fail to generate signature. The reason is " + result.getString("reasons"));
 	    }
-	        
-	    Signature signature = new Signature();
-	    signature.setPage(page);
-	    signature.setTenantId(result.getString("tenantId"));
-	    signature.setToken(result.getString("token"));
-	    signature.setSignature(result.getString("signature"));
 	    
-	    return signature;
+	    return result;
 	}
-
+	
+	private static String buildJsonRequest(String pageId) throws NullPointerException, JSONException {
+	    JSONObject json = new JSONObject();
+	    if(url.toLowerCase().indexOf("https") >= 0) {
+	    	Protocol.registerProtocol("https", new Protocol("https", new BypassSSLSocketFactory(), DEFAULT_HTTPS_PORT));
+	    }
+	    json.put("uri", url);
+	    json.put("method","POST");
+	    json.put("pageId", pageId);
+	    return json.toString();
+	}
+		
+	private static String encrypt(String text) throws Exception {
+	 	Cipher encrypter = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+	 	encrypter.init(Cipher.ENCRYPT_MODE, publicKeyObject);
+	 	byte[] unencoded = encrypter.doFinal(text.getBytes(Charset.forName("UTF-8")));
+	 	return new String(Base64.encodeBase64(unencoded));
+	}
+	
 	/**
 	 * Validate signature using Hosted Page configuration
 	 * 
-	 * @param pageName - Page Name specified in HPM configuration file
 	 * @param signature - signature need to validate
 	 * @param expiredAfter - expired time in millisecond after the signature is created
-	 * @return true if the signature is valid; otherwise, false 
 	 * @throws Exception
 	 */
-	public boolean isValidSignature(String pageName, String signature, long expiredAfter) throws Exception {
-		HPMPage page = pages.get(pageName);
-		if(page == null) {
-			throw new Exception("Could not find Hosted Page configurations for " + pageName);
-		}
-		
+	public static void validSignature(String signature, long expiredAfter) throws Exception {
 		// Decrypt signature.
 		byte[] decoded = Base64.decodeBase64(signature.getBytes(Charset.forName("UTF-8")));
 		Cipher encrypter = Cipher.getInstance("RSA/ECB/PKCS1Padding");
@@ -406,7 +332,7 @@ public class HPMHelper {
 	 	
 	 	// Validate signature.
 	 	if(StringUtils.isBlank(decryptedSignature)) {
-			return false;			
+			throw new Exception("Signature is empty.");			
 		}
 	 	
 		StringTokenizer st = new StringTokenizer(decryptedSignature,"#");
@@ -418,36 +344,23 @@ public class HPMHelper {
 		
 		if(StringUtils.isBlank(url_signature) || StringUtils.isBlank(tenanId_signature) || StringUtils.isBlank(token_signature) 
 				|| StringUtils.isBlank(timestamp_signature) || StringUtils.isBlank(pageId_signature)) {
-			return false;
+			throw new Exception("Signature is not complete.");
 		}
 		
-		if(!pageId_signature.equals(page.getPageId())) {
-			return false;
+		boolean isPageIdValid = false;
+		for(HPMPage page : pages.values()) {
+			if(page.getPageId().equals(pageId_signature)) {
+				isPageIdValid = true;
+				break;
+			}
+		}
+		if(!isPageIdValid) {
+			throw new Exception("Page Id in signature is invalid.");
 		}
 		
 		if((new Date()).getTime() > (Long.parseLong(timestamp_signature) + expiredAfter)) {
-			return false;
-		}
-		
-   	  	return true;   	  
+			throw new Exception("Signature is expired.");
+		}		
 	}	
-		
-	public boolean isValidPublicKey(String publicKey) {
-		if(publicKeyString.length() == publicKey.length() && publicKeyString.equals(publicKey)) {
-			return true;
-		}
-		
-		return false;
-	}
 
-	public HPMPage getPage(String pageName) {
-		return pages.get(pageName);
-	}
-	
-	public String encrypt(String text) throws Exception {
-	 	Cipher encrypter = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-	 	encrypter.init(Cipher.ENCRYPT_MODE, publicKeyObject);
-	 	byte[] unencoded = encrypter.doFinal(text.getBytes(Charset.forName("UTF-8")));
-	 	return new String(Base64.encodeBase64(unencoded));
-	}
 }

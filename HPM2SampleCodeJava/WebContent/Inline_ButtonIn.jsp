@@ -1,11 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.zuora.hosted.lite.util.HPMHelper" %>
-<%@ page import="com.zuora.hosted.lite.util.HPMHelper.Signature" %>
-<%@ page import="java.util.Properties" %>
-<%@ page import="java.util.Iterator" %>
+<%@ page import="java.util.Map" %>
 <%
-	HPMHelper hpmHelper = HPMHelper.getInstance();
-	Signature signature = (Signature)request.getAttribute("signature");	
+	Map params = (Map)request.getAttribute("params");
+	Map prepopulateFields = (Map)request.getAttribute("prepopulateFields");
 %>
 <!DOCTYPE html>
 <html>
@@ -14,53 +12,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Inline, Button In.</title>
-<script type="text/javascript" src='<%=hpmHelper.getJsPath()%>'></script>
+<script type="text/javascript" src='<%=HPMHelper.getJsPath()%>'></script>
 <script type="text/javascript">
-// non-PCI pre-populate fields.
-var prepopulateFields = {
-};
+//HPM parameters and passthroughs
+var params = {};
 
-// HPM parameters, passthrough and PCI pre-populate fields.
-var params = {
-	tenantId:"<%=signature.getTenantId()%>", 
-	id:"<%=signature.getPageId()%>",
-	token:"<%=signature.getToken()%>",
-	signature:"<%=signature.getSignature()%>",
-	key:"<%=signature.getPublicKey()%>",
-	style:"inline",
-	submitEnabled:"true",
-	locale:"<%=request.getParameter("locale")%>",
-	url:"<%=signature.getUrl()%>",
-	paymentGateway:"<%=signature.getPaymentGateway()%>",
-	field_passthrough1:100,
-	field_passthrough2:200,
-	field_passthrough3:300,
-	field_passthrough4:"<%=request.getParameter("pageName")%>",
-	field_passthrough5:500
-};
+//Set parammeters and passthroughs
+<%	
+	for(Object key : params.keySet()) {
+%>
+params["<%=(String)key%>"]="<%=(String)params.get(key)%>";		
+<%
+	}
+%>
 
-//Set pre-populate fields.
-<%
-	// Put PCI pre-populate fields to params.
-	Properties prepopFields = (Properties)request.getAttribute("pciPrepopFields");
-	Iterator iterator = prepopFields.keySet().iterator();
-	while(iterator.hasNext()) {
-		String key = (String)iterator.next();
-		String value = prepopFields.getProperty(key);
+//Pre-populate fields
+var prepopulateFields = {};
+
+//Set pre-populate fields
+<%		
+	for(Object key : prepopulateFields.keySet()) {
 %>
-params["field_<%=key%>"]="<%=value%>";
-<%
-	} 
-	
-	// Put non-PCI pre-populate fields to prepopulateFields.
-	prepopFields = (Properties)request.getAttribute("nonpciPrepopFields");
-	iterator = prepopFields.keySet().iterator();
-	while(iterator.hasNext()) {
-		String key = (String)iterator.next();
-		String value = prepopFields.getProperty(key);
-		
-%>
-prepopulateFields["<%=key%>"]="<%=value%>";
+prepopulateFields["<%=(String)key%>"]="<%=(String)prepopulateFields.get(key)%>";		
 <%
 	}
 %>

@@ -1,17 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.zuora.hosted.lite.util.HPMHelper" %>
-<%@ page import="com.zuora.hosted.lite.util.HPMHelper.Signature" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Properties" %>
 <%@ page import="java.io.FileInputStream" %>
-<%@ page import="java.util.Iterator" %>
-<%@ page import="java.util.HashSet" %>
 <%
-	HPMHelper hpmHelper = HPMHelper.getInstance();
+	Map<String, String> params = new HashMap<String, String>();
+	params.put("style", "inline");
+	params.put("submitEnabled", "true");
+	params.put("locale", request.getParameter("locale"));
 	
-	// Generate signature.
-	Signature signature = null;
+	Properties prepopulateFields = new Properties();
+	prepopulateFields.load(new FileInputStream(request.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
+	
 	try{
-		signature = hpmHelper.generateSignaure(request.getParameter("pageName"));		
+		HPMHelper.prepareParamsAndFields(request.getParameter("pageName"), params, (Map)prepopulateFields);		
 	}catch(Exception e) {
 		// TODO: Error handling code should be added here.
 		
@@ -25,62 +28,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Inline, Button In.</title>
-<script type="text/javascript" src='<%=hpmHelper.getJsPath()%>'></script>
+<script type="text/javascript" src='<%=HPMHelper.getJsPath()%>'></script>
 <script type="text/javascript">
-// non-PCI pre-populate fields.
-var prepopulateFields = {
-};
+//HPM parameters and passthroughs
+var params = {};
 
-// HPM parameters, passthrough and PCI pre-populate fields.
-var params = {
-	tenantId:"<%=signature.getTenantId()%>", 
-	id:"<%=signature.getPageId()%>",
-	token:"<%=signature.getToken()%>",
-	signature:"<%=signature.getSignature()%>",
-	key:"<%=signature.getPublicKey()%>",
-	style:"inline",
-	submitEnabled:"true",
-	locale:"<%=request.getParameter("locale")%>",
-	url:"<%=signature.getUrl()%>",
-	paymentGateway:"<%=signature.getPaymentGateway()%>",
-	field_passthrough1:100,
-	field_passthrough2:200,
-	field_passthrough3:300,
-	field_passthrough4:"<%=request.getParameter("pageName")%>",
-	field_passthrough5:500
-};
-
-// Set pre-populate fields.
-<%
-	// Define PCI pre-populate fields.
-	HashSet<String> encryptedFields = new HashSet<String>();
-	encryptedFields.add("creditCardNumber");
-	encryptedFields.add("cardSecurityCode");
-	encryptedFields.add("creditCardExpirationYear");
-	encryptedFields.add("creditCardExpirationMonth");
-
-	// Load pre-populate fields.
-	Properties props = new Properties();
-	props.load(new FileInputStream(request.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
-	
-	Iterator iterator = props.keySet().iterator();
-	while(iterator.hasNext()) {
-		String key = (String)iterator.next();
-		String value = props.getProperty(key);
-		if(encryptedFields.contains(key)) {
-			// Encrypt PCI pre-populate fields and put to params.
-			if(value != null && !"".equals(value)) {
-				value = hpmHelper.encrypt(value);
-			}
+//Set parammeters and passthroughs
+<%	
+	for(Object key : params.keySet()) {
 %>
-params["field_<%=key%>"]="<%=value%>";
+params["<%=(String)key%>"]="<%=(String)params.get(key)%>";		
 <%
-		} else {
-			// Put non-PCI pre-populate fields to prepopulateFields.
+	}
 %>
-prepopulateFields["<%=key%>"]="<%=value%>";
+
+//Pre-populate fields
+var prepopulateFields = {};
+
+//Set pre-populate fields
+<%	
+	for(Object key : prepopulateFields.keySet()) {
+%>
+prepopulateFields["<%=(String)key%>"]="<%=(String)prepopulateFields.get(key)%>";		
 <%
-		}
 	}
 %>
 

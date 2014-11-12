@@ -1,16 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.zuora.hosted.lite.util.HPMHelper" %>
 <%
-	HPMHelper hpmHelper = HPMHelper.getInstance();
-
 	String message = "";
 	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
 		if("true".equals(request.getParameter("success"))) {
 			// Validate signature. Signature's expired time is 30 minutes.
 			try {
-				if(!hpmHelper.isValidSignature(request.getParameter("field_passthrough4"), request.getParameter("signature"), 1000 * 60 * 30)) {
-					throw new Exception("Signature is invalid.");
-				}
+				HPMHelper.validSignature(request.getParameter("signature"), 1000 * 60 * 30);
 			} catch(Exception e) {
 				// TODO: Error handling code should be added here.			
 				

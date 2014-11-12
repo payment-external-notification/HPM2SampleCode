@@ -28,6 +28,8 @@ package com.zuora.demo.hosted.lite;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -36,7 +38,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.zuora.hosted.lite.util.HPMHelper;
-import com.zuora.hosted.lite.util.HPMHelper.Signature;
 
 /**
  * ShowPageServlet generates signature and set the information used to render Hosted Page. 
@@ -49,19 +50,25 @@ public class ShowPageServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		HPMHelper hpmHelper = HPMHelper.getInstance();
-		String pageName = req.getParameter("pageName");
+		Map<String, String> params = new HashMap<String, String>();
+		if("overlay".equals(req.getParameter("style"))) {
+			params.put("style", "overlay");
+			params.put("submitEnabled", "true");			
+		} else if("true".equals(req.getParameter("submitEnable"))) {
+			params.put("style", "inline");
+			params.put("submitEnabled", "true");
+		} else {
+			params.put("style", "inline");
+			params.put("submitEnabled", "false");
+			params.put("retainValues", "true");
+		}
+		params.put("locale", req.getParameter("locale"));
+		
+		Properties prepopulateFields = new Properties();
+		prepopulateFields.load(new FileInputStream(req.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
 		
 		try{
-			if(pageName == null || "".equals(pageName.trim())) {
-				throw new Exception("Not specify Hosted Page.");
-			}
-			
-			// Generate signature.
-			Signature signature = hpmHelper.generateSignaure(pageName);
-		
-			// Set Hosted Page parameters.
-			req.setAttribute("signature", signature);
+			HPMHelper.prepareParamsAndFields(req.getParameter("pageName"), params, (Map)prepopulateFields);
 		}catch(Exception e) {
 			// TODO: Error handling code should be added here.
 			
@@ -70,37 +77,9 @@ public class ShowPageServlet extends HttpServlet {
 			e.printStackTrace();
 			
 			throw new ServletException("Error happened during generating signature. " + e.getMessage());
-		}
- 
-		try {
-			// Set pre-populate fields.
-			Properties props = new Properties();
-			props.load(new FileInputStream(req.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
-			
-			Properties pciPrepopulateFields = new Properties();
-			// Encrypt PCI pre-populate fields.
-			for(String key : new String[]{"creditCardNumber", "cardSecurityCode", "creditCardExpirationYear", "creditCardExpirationMonth"}) {
-				String value = props.getProperty(key);
-				if(value != null && !"".equals(value)) {
-					pciPrepopulateFields.setProperty(key, hpmHelper.encrypt(value));
-				}
-				props.remove(key);
-			}
-			
-			req.setAttribute("pciPrepopFields", pciPrepopulateFields);
-			req.setAttribute("nonpciPrepopFields", props);
-		} catch (Exception e) {
-			// TODO: Error handling code should be added here.
-			
-			System.out.println("Error happened during encrypting pre-populate fields.");
-			
-			e.printStackTrace();
-			
-			throw new ServletException("Error happened during encrypting pre-populate fields. " + e.getMessage());
-		}
-				
-		// Other variables.
-		req.setAttribute("pageName", pageName);		
+		}	
+		req.setAttribute("params", params);
+		req.setAttribute("prepopulateFields", prepopulateFields);
 		
 		if("overlay".equals(req.getParameter("style"))) {
 			req.getRequestDispatcher("/Overlay.jsp").forward(req, resp);

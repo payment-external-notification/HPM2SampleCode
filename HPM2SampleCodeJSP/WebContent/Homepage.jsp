@@ -2,8 +2,7 @@
 <%@ page import="com.zuora.hosted.lite.util.HPMHelper" %>
 <%@ page import="java.util.Iterator" %>
 <%
-	HPMHelper hpmHelper = HPMHelper.getInstance();
-	hpmHelper.loadConfiguration(request.getServletContext().getRealPath("WEB-INF") + "/conf/configuration.properties");
+	HPMHelper.loadConfiguration(request.getServletContext().getRealPath("WEB-INF") + "/conf/configuration.properties");
 %>
 <!DOCTYPE html>
 <html>
@@ -15,10 +14,10 @@
 <script type="text/javascript">
 var locales = {
 		<%
-		Iterator<String> pageIterator = hpmHelper.getPages().keySet().iterator();
+		Iterator<String> pageIterator = HPMHelper.getPages().keySet().iterator();
 		while(pageIterator.hasNext()) {
 			String pageName = (String)pageIterator.next();
-			Iterator<String> localeIterator = hpmHelper.getPage(pageName).getLocales().iterator();
+			Iterator<String> localeIterator = HPMHelper.getPage(pageName).getLocales().iterator();
 			String locales = "";
 			while(localeIterator.hasNext()) {
 				locales += "\"" + localeIterator.next() + "\"";
@@ -84,7 +83,7 @@ function showPage() {
 	<div class="item">
 		<select id="page" style="width: 150px; height: 24px;" onchange="pageChange(this)">
 				<%
-					pageIterator = hpmHelper.getPages().keySet().iterator();
+					pageIterator = HPMHelper.getPages().keySet().iterator();
 					while(pageIterator.hasNext()) {
 						String pageName = (String)pageIterator.next();
 				%>	
