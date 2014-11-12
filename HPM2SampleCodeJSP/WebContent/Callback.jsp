@@ -13,15 +13,15 @@
 				throw e;
 			}
 			
-			// Submitting hosted page succeeds.
-			message = "Hosted Page submits successfully. The payment method id is " + request.getParameter("refId") + ".";
+			// Submitting hosted page succeeded.
+			message = "Hosted Page submitted successfully. The payment method id is " + request.getParameter("refId") + ".";
 		} else {
-			// Submitting hosted page fails.
-			message = "Hosted Page fails to submit. The reason is: " + request.getParameter("errorMessage") + ".";
+			// Submitting hosted page failed.
+			message = "Hosted Page failed to submit. The reason is: " + request.getParameter("errorMessage");
 		}		
 	} else {
-		// Requesting hosted page fails.
-		message = "Hosted Page fails to load. The reason is: " + request.getParameter("errorMessage") + ".";
+		// Requesting hosted page failed.
+		message = "Hosted Page failed to load. The reason is: " + request.getParameter("errorMessage");
 	}
 %>
 <!DOCTYPE html>
@@ -52,12 +52,12 @@ if(window.parent != window) {
 	<%
 	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
 		if("true".equals(request.getParameter("success"))) {
-			// Submitting hosted page succeeds.
+			// Submitting hosted page succeeded.
 	%>
 	window.parent.submitSucceed();
 	<%
 		} else {
-			// Submitting hosted page fails.
+			// Submitting hosted page failed.
 	%>
 	window.parent.submitFail("<%=request.getParameter("errorMessage").replace('\n', ' ')%>");
 	<%

@@ -27,12 +27,12 @@ if(window.parent != window) {
 	<%
 	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
 		if("true".equals(request.getParameter("success"))) {
-			// Submitting hosted page succeeds.
+			// Submitting hosted page succeeded.
 	%>
 	window.parent.submitSucceed();
 	<%
 		} else {
-			// Submitting hosted page fails.
+			// Submitting hosted page failed.
 	%>
 	window.parent.submitFail("<%=request.getParameter("errorMessage").replace('\n', ' ')%>");
 	<%

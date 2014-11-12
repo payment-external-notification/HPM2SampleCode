@@ -40,7 +40,7 @@ prepopulateFields["<%=(String)key%>"]="<%=(String)prepopulateFields.get(key)%>";
 
 var callback = function (response) {
     if(!response.success) {
-    	// Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
+    	// Requesting hosted page failed. Error handling code should be added here. Simply forward to the callback url in sample code.
     	var callbackUrl = "callback?";
     	for(id in response) {
     		callbackUrl = callbackUrl+id+"="+encodeURIComponent(response[id])+"&";		
@@ -67,13 +67,13 @@ function submitPage() {
 }
 
 function submitSucceed() {
-	// Submitting hosted page succeeds, disable the submit button.
+	// Submitting hosted page succeeded, disable the submit button.
 	document.getElementById("submitButton").disabled = true;
 }
 
 function submitFail(errorMessage) {
-	// Submitting hosted page fails, display error message and reload hosted page with retained values.
-	document.getElementById("errorMessage").innerHTML="Hosted Page fails to submit. The reason is: " + errorMessage;		
+	// Submitting hosted page failed, display error message and reload hosted page with retained values.
+	document.getElementById("errorMessage").innerHTML="Hosted Page failed to submit. The reason is: " + errorMessage;		
 	var zuoraDiv = document.getElementById('zuora_payment');
 	zuoraDiv.innerHTML="";
 	Z.render(params,null,callback);
