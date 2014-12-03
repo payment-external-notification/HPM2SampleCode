@@ -34,7 +34,7 @@ if(window.parent != window) {
 		} else {
 			// Submitting hosted page failed.
 	%>
-	window.parent.submitFail("<%=request.getParameter("errorMessage").replace('\n', ' ')%>");
+	window.parent.submitFail("<%=request.getQueryString()%>");
 	<%
 		}
 	}

@@ -106,6 +106,10 @@ public class HPMHelper {
 		return pages.get(pageName);
 	}
 	
+	public static String getJsVersion() {
+		return jsVersion;
+	}
+	
 	/**
 	 * HPMPage contains the configurations for a single Hosted Page.
 	 * 
@@ -163,7 +167,7 @@ public class HPMHelper {
 		password = props.getProperty("password");
 		publicKeyString = props.getProperty("publicKey");
 		jsPath = props.getProperty("jsPath");
-		Pattern pattern = Pattern.compile(".+hosted/([0-1|\\.]+)/zuora.+");
+		Pattern pattern = Pattern.compile(".+hosted/(.+)/zuora.+");
 		Matcher matcher = pattern.matcher(jsPath);
 		if(matcher.matches()) {
 			jsVersion = matcher.group(1);
