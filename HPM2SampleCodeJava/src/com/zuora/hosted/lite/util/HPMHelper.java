@@ -28,11 +28,8 @@ package com.zuora.hosted.lite.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.security.Key;
-import java.security.Security;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -46,21 +43,18 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.crypto.Cipher;
-
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMReader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.zuora.hosted.lite.support.BypassSSLSocketFactory;
+import com.zuora.rsa.security.decrypt.SignatureDecrypter;
+import com.zuora.rsa.security.encrypt.RsaEncrypter;
 
 /**
  * HPM utility class which can 
@@ -80,8 +74,6 @@ public class HPMHelper {
 		fieldToEncrypt.add("cardSecurityCode");
 		fieldToEncrypt.add("creditCardExpirationYear");
 		fieldToEncrypt.add("creditCardExpirationMonth");
-		
-		Security.addProvider(new BouncyCastleProvider());
 	}
 	
 	private static String url = "";
@@ -91,7 +83,6 @@ public class HPMHelper {
 	private static String publicKeyString = "";
 	private static String jsPath = "";
 	private static String jsVersion ="";
-	private static Key publicKeyObject = null;
 	private static Map<String, HPMPage> pages = new LinkedHashMap<String, HPMPage>();
 	 	
 	public static String getJsPath() {
@@ -203,16 +194,8 @@ public class HPMHelper {
 				}
 			}
 		}
-		
-		generatePublicKeyObject();
 	}
 	
-	private static void generatePublicKeyObject() throws IOException {
-		PEMReader pemReader = new PEMReader(new StringReader("-----BEGIN PUBLIC KEY-----\n" + publicKeyString + "\n-----END PUBLIC KEY-----"));
-		publicKeyObject = (Key)pemReader.readObject();
-		pemReader.close();
-	}
-
 	/**
 	 * Fill params and encrypt PCI pre-populate fields.
 	 * 
@@ -241,7 +224,7 @@ public class HPMHelper {
 			String key = iterator.next();
 	    	String value = prepopulateFields.get(key);
 	    	if(fieldToEncrypt.contains(key)) {
-	    		value = encrypt(value);
+	    		value = RsaEncrypter.encrypt(value, publicKeyString);
 	    		if("1.0.0".equals(jsVersion) || "1.1.0".equals(jsVersion)) {
 	    			// For zuora.js version 1.0.0 and 1.1.0, PCI pre-populate fields are in params.
 	    			iterator.remove();
@@ -313,13 +296,6 @@ public class HPMHelper {
 	    return json.toString();
 	}
 		
-	private static String encrypt(String text) throws Exception {
-	 	Cipher encrypter = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-	 	encrypter.init(Cipher.ENCRYPT_MODE, publicKeyObject);
-	 	byte[] unencoded = encrypter.doFinal(text.getBytes(Charset.forName("UTF-8")));
-	 	return new String(Base64.encodeBase64(unencoded));
-	}
-	
 	/**
 	 * Validate signature using Hosted Page configuration
 	 * 
@@ -328,12 +304,7 @@ public class HPMHelper {
 	 * @throws Exception
 	 */
 	public static void validSignature(String signature, long expiredAfter) throws Exception {
-		// Decrypt signature.
-		byte[] decoded = Base64.decodeBase64(signature.getBytes(Charset.forName("UTF-8")));
-		Cipher encrypter = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-		encrypter.init(Cipher.DECRYPT_MODE, publicKeyObject);
-	 	String decryptedSignature = new String(encrypter.doFinal(decoded));
-	 	
+		String decryptedSignature = SignatureDecrypter.decryptAsString(signature, publicKeyString);
 	 	// Validate signature.
 	 	if(StringUtils.isBlank(decryptedSignature)) {
 			throw new Exception("Signature is empty.");			
