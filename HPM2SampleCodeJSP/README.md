@@ -28,7 +28,9 @@ RUNNING THE SAMPLE:
 		
    publicKey - Public key, it can be retrieved in Zuora application through the following path: Settings > Administration Settings > Security Policies > Get Key.
 		
-   jsPath - Javascript library path, for the production environment: https://static.zuora.com/Resources/libs/hosted/1.1.0/zuora-min.js; for the API Sandbox environment: https://apisandboxstatic.zuora.com/Resources/libs/hosted/1.1.0/zuora-min.js.
+   jsPath - Javascript library path, for the production environment: https://static.zuora.com/Resources/libs/hosted/1.2.0/zuora-min.js; for the API Sandbox environment: https://apisandboxstatic.zuora.com/Resources/libs/hosted/1.2.0/zuora-min.js.
+
+   callbackURL - Callback URL defined in HPM page.
 
    Multiple Hosted Pages can be configured in configuration.properties. Each Hosted Page should has an unique page name. The property name of Hosted Page should start with 'page.' following page name. Here are descriptions of Hosted Page properties:
 		
@@ -40,11 +42,11 @@ RUNNING THE SAMPLE:
 		
 3. Modify the file HPM2SampleCodeJSP/WebContent/WEB-INF/data/prepopulate.properties to set the values for pre-populate fields.
 	
-4. Modify the Hosted Page configurtions in Zuora application.
+4. Modify the Hosted Page configurations in Zuora application.
 	 
-   Hosted Domain - set to the domain which this sample application will run at. For example: http://localhost:8080
+   Hosted Domain - set to the domain which this sample application will run on. For example: http://localhost:8080
 	 
-   Callback Path - set to HPM2SampleCodeJSP/Callback.jsp within which 'HPM2SampleCodeJSP' is the path of this sample application.
+   Callback Path - set to /HPM2SampleCodeJSP/Callback.jsp within which 'HPM2SampleCodeJSP' is the path of this sample application.
 	
 5. Build this project.
 	

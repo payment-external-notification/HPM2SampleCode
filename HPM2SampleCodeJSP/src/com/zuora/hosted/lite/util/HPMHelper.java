@@ -28,6 +28,7 @@ package com.zuora.hosted.lite.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.Key;
 import java.util.ArrayList;
@@ -43,6 +44,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -53,6 +56,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.zuora.hosted.lite.support.BypassSSLSocketFactory;
+import com.zuora.rsa.security.decrypt.FieldDecrypter;
 import com.zuora.rsa.security.decrypt.SignatureDecrypter;
 import com.zuora.rsa.security.encrypt.RsaEncrypter;
 
@@ -65,7 +69,7 @@ import com.zuora.rsa.security.encrypt.RsaEncrypter;
  * @author Tony.Liu, Chunyu.Jia.
  */
 public class HPMHelper {
-	
+	private static final String DELIM="#";
 	private static final int DEFAULT_HTTPS_PORT = 443;
 	private static final Set<String> fieldToEncrypt = new HashSet<String>();
 	
@@ -78,6 +82,7 @@ public class HPMHelper {
 	
 	private static String url = "";
 	private static String endPoint = "";
+	private static String callbackURL = "";
 	private static String username = "";
 	private static String password = "";
 	private static String publicKeyString = "";
@@ -154,6 +159,7 @@ public class HPMHelper {
 		
 		url = props.getProperty("url");
 		endPoint = props.getProperty("endPoint");
+		callbackURL = props.getProperty("callbackURL");
 		username =props.getProperty("username");
 		password = props.getProperty("password");
 		publicKeyString = props.getProperty("publicKey");
@@ -303,7 +309,11 @@ public class HPMHelper {
 	 * @param expiredAfter - expired time in millisecond after the signature is created
 	 * @throws Exception
 	 */
-	public static void validSignature(String signature, long expiredAfter) throws Exception {
+	public static void validBasicSignature(String signature, long expiredAfter) throws Exception {
+		//Need to get value from configration page and value from request to construct the encryptedString.
+		
+	    //SignatureDecrypter.verifyAdvancedSignature(signature, encryptedString, publicKeyString);
+		
 		String decryptedSignature = SignatureDecrypter.decryptAsString(signature, publicKeyString);
 	 	// Validate signature.
 	 	if(StringUtils.isBlank(decryptedSignature)) {
@@ -335,7 +345,72 @@ public class HPMHelper {
 		
 		if((new Date()).getTime() > (Long.parseLong(timestamp_signature) + expiredAfter)) {
 			throw new Exception("Signature is expired.");
-		}		
-	}	
+		}
+	}
+	
+	public static void validSignature(HttpServletRequest request, long expiredAfter) throws Exception {
+		if( request.getParameter("timestamp") == null ) {
+			//If customer is using basic signature type, use following statement for valid.
+			HPMHelper.validBasicSignature(request.getParameter("signature"), expiredAfter);
+		}else{
+			HPMHelper.validateAdvancedSignature(request, expiredAfter);
+		}
+	}
+	
+	/**
+	 * Throw exception when the signature is invalid.
+	 * @param request
+	 * @param expiredAfter
+	 * @throws Exception
+	 */
+	public static void validateAdvancedSignature(HttpServletRequest request, long expiredAfter) throws Exception {
+
+		    // We can leverage FieldDecrypter to decrypt paygeId and refId.
+			String pageId = FieldDecrypter.decrypt(request.getParameter("pageId"), publicKeyString );
+			String paymentMethodId = FieldDecrypter.decrypt(request.getParameter("refId"), publicKeyString);
+			
+			System.out.println("Charset:" + request.getCharacterEncoding() );
+			System.out.println("QueryString:" + request.getQueryString() );
+			boolean isSignatureValid = SignatureDecrypter.verifyAdvancedSignature(request, callbackURL, publicKeyString);
+			
+//          Following comment out codes is for reference to how to construct the encrypted string.
+//			StringBuilder encryptedString = new StringBuilder();
+//			encryptedString.append( "/hpm2samplecodejsp/callback.jsp");
+//			encryptedString.append( DELIM + request.getParameter("tenantId") );
+//			encryptedString.append( DELIM + request.getParameter("token"));
+//			encryptedString.append( DELIM + request.getParameter("timestamp"));
+//			encryptedString.append( DELIM + FieldDecrypter.decrypt(request.getParameter("pageId"), publicKeyString ));
+//			
+//			encryptedString.append( DELIM + (request.getParameter("errorCode") == null?"":request.getParameter("errorCode") ));
+//			
+//			encryptedString.append( DELIM + (request.getParameter("field_passthrough1") == null? "":request.getParameter("field_passthrough1")));
+//			encryptedString.append( DELIM + (request.getParameter("field_passthrough2") == null? "":request.getParameter("field_passthrough2")));
+//			encryptedString.append( DELIM + (request.getParameter("field_passthrough3") == null? "":request.getParameter("field_passthrough3")));
+//			encryptedString.append( DELIM + (request.getParameter("field_passthrough4") == null? "":request.getParameter("field_passthrough4")));
+//			encryptedString.append( DELIM + (request.getParameter("field_passthrough5") == null? "":request.getParameter("field_passthrough5")));
+//			
+//			encryptedString.append( DELIM + FieldDecrypter.decrypt(request.getParameter("refId"), publicKeyString) );
+//
+//			boolean isSignatureValid = false;
+//			
+//			String signature = null;
+//			System.out.println("Charset:" + request.getCharacterEncoding() );
+//			String[] parameters = request.getQueryString().split("&");
+//			for(String parameter: parameters){
+//				String[] keyValue = parameter.split("=");
+//				if( keyValue.length>1 && "signature".equals(keyValue[0]) ){
+//					signature = keyValue[1];
+//					break;
+//				}
+//			}
+//			isSignatureValid = SignatureDecrypter.verifyAdvancedSignature(URLDecoder.decode( signature, "UTF-8"), encryptedString.toString(), publicKeyString);
+			if(!isSignatureValid) {
+				throw new Exception("Signature is invalid.");
+			}
+			
+			if((new Date()).getTime() > (Long.parseLong(request.getParameter("timestamp")) ) + expiredAfter) {
+				throw new Exception("Signature is expired.");
+			}
+	}
 
 }

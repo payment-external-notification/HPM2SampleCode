@@ -94,13 +94,13 @@ function showPage() {
 		</select>
 	</div>
 	<div class="title"><font size="5">Please select the Hosted Page style you want:</font></div>
-	<div class="item"><input type="radio" name="style" value="Inline_ButtonIn.jsp" checked="checked"/>Inline, Submit button inside Hosted Page.</div>
-	<div class="item"><input type="radio" name="style" value="Inline_ButtonOut.jsp"/>Inline, Submit button outside Hosted Page.</div>
-	<div class="item"><input type="radio" name="style" value="Overlay.jsp"/>Overlay Hosted Page.</div>
+	<div class="item"><input type="radio" name="style" id="ButtonIn" value="Inline_ButtonIn.jsp" checked="checked"/>Inline, Submit button inside Hosted Page.</div>
+	<div class="item"><input type="radio" name="style" id="ButtonOut" value="Inline_ButtonOut.jsp"/>Inline, Submit button outside Hosted Page.</div>
+	<div class="item"><input type="radio" name="style" id="Overlay" value="Overlay.jsp"/>Overlay Hosted Page.</div>
 	<div class="title"><font size="5">Please select the locale:</font></div>
 	<div class="item">
 		<select id="locale" style="width: 150px; height: 24px;"></select>
 	</div>
-	<div class="title"><button onclick="showPage()" style="width: 50px; height: 24px; margin-left: 200px;">OK</button></div>
+	<div class="title"><button type="button" onclick="showPage()" style="width: 50px; height: 24px; margin-left: 200px;">OK</button></div>
 </body>
 </html>

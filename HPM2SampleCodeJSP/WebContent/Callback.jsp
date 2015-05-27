@@ -6,7 +6,7 @@
 		if("true".equals(request.getParameter("success"))) {
 			// Validate signature. Signature's expired time is 30 minutes.
 			try {
-				HPMHelper.validSignature(request.getParameter("signature"), 1000 * 60 * 30);
+				HPMHelper.validSignature(request, 1000 * 60 * 30);
 			} catch(Exception e) {
 				// TODO: Error handling code should be added here.			
 				

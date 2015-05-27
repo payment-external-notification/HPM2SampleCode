@@ -10,6 +10,12 @@
 	params.put("submitEnabled", "false");
 	params.put("locale", request.getParameter("locale"));
 	params.put("retainValues", "true");
+	params.put("signatureType", "advanced");
+ 	params.put("field_passthrough1", "100");
+ 	params.put("field_passthrough2", "100");
+ 	//params.put("field_passthrough3", "100");
+ 	params.put("field_passthrough4", "100");
+ 	params.put("field_passthrough5", "100");
 	
 	Properties prepopulateFields = new Properties();
 	prepopulateFields.load(new FileInputStream(request.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
