@@ -26,8 +26,12 @@
  */
 package com.zuora.rsa.security.decrypt;
 
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Security;
+import java.security.Signature;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -35,11 +39,14 @@ import java.util.StringTokenizer;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.zuora.rsa.security.PublicKeyBuilder;
+import com.zuora.rsa.security.decrypt.FieldDecrypter;
 /**
  * <p><b>Function:</b> It is a tool, which can be used to decrypt signature with public key.
  *
@@ -48,6 +55,13 @@ import com.zuora.rsa.security.PublicKeyBuilder;
  * @see
  */
 public class SignatureDecrypter {
+	private static final String DELIM="#";
+	
+	public enum SignatureType {
+		Advanced,
+		Basic;
+	}
+	
 	/**
 	 * Decrypt signature with public key, and get string returned.
 	 * 
@@ -66,7 +80,77 @@ public class SignatureDecrypter {
 	 	return new String(encrypter.doFinal(decoded));
 	}
 	
+	/**
+	 * Using this method, you have to construct the encryptedString based on our guideline by yourself.
+	 * @param signature
+	 * @param encryptedString
+	 * @param publicKey
+	 * @return
+	 * @throws Exception
+	 */
+	public static final boolean verifyAdvancedSignature(String signature, String encryptedString, String publicKey) throws Exception {
+		Signature instance = Signature.getInstance("SHA512withRSA");
+		instance.initVerify((PublicKey) PublicKeyBuilder.build(publicKey));
+		instance.update(encryptedString.getBytes() );
+		System.out.println("The signature for SHA512WithRSA:" +  signature);
+		System.out.println("The byte array of signature for SHA512WithRSA encryption " +  new sun.misc.BASE64Decoder().decodeBuffer(signature).toString());
+		return instance.verify( new sun.misc.BASE64Decoder().decodeBuffer(signature) );
+	}
+	
+	/**
+	 * We construct the encryptedString for you through getting the value from http request directly.
+	 * @param request
+	 * @param callBackURL
+	 * @param publicKey
+	 * @return
+	 * @throws Exception
+	 */
+	public static final boolean verifyAdvancedSignature(HttpServletRequest request, String callBackURL, String publicKey) throws Exception {
+		if (callBackURL == null || request == null || publicKey == null) {
+	         return false;
+		}
+	      
+	    String lowerCase = callBackURL.toLowerCase();
+	      
+	    String queryPath = lowerCase.startsWith("http") ? URIUtil.getPathQuery(lowerCase) : lowerCase;
+	      
+	      
+		StringBuilder encryptedString = new StringBuilder();
+		encryptedString.append( "/hpm2samplecodejsp/callback.jsp");
+		encryptedString.append( DELIM + request.getParameter("tenantId") );
+		encryptedString.append( DELIM + request.getParameter("token"));
+		encryptedString.append( DELIM + request.getParameter("timestamp"));
+		encryptedString.append( DELIM + FieldDecrypter.decrypt(request.getParameter("pageId"), publicKey ));
+		
+		encryptedString.append( DELIM + (request.getParameter("errorCode") == null?"":request.getParameter("errorCode") ));
+		
+		encryptedString.append( DELIM + (request.getParameter("field_passthrough1") == null? "":request.getParameter("field_passthrough1")));
+		encryptedString.append( DELIM + (request.getParameter("field_passthrough2") == null? "":request.getParameter("field_passthrough2")));
+		encryptedString.append( DELIM + (request.getParameter("field_passthrough3") == null? "":request.getParameter("field_passthrough3")));
+		encryptedString.append( DELIM + (request.getParameter("field_passthrough4") == null? "":request.getParameter("field_passthrough4")));
+		encryptedString.append( DELIM + (request.getParameter("field_passthrough5") == null? "":request.getParameter("field_passthrough5")));
+		
+		encryptedString.append( DELIM + FieldDecrypter.decrypt(request.getParameter("refId"), publicKey) );
 
+		boolean isSignatureValid = false;
+		
+		String signature = null;
+		System.out.println("Charset:" + request.getCharacterEncoding() );
+		System.out.println("Query String:" +  request.getQueryString() );
+
+		String[] parameters = request.getQueryString().split("&");
+		for(String parameter: parameters){
+			String[] keyValue = parameter.split("=");
+			if( keyValue.length>1 && "signature".equals(keyValue[0]) ){
+				signature = keyValue[1];
+				break;
+			}
+		}
+		System.out.println("Advanced Signature String:" + signature );
+		//isSignatureValid = SignatureDecrypter.verifyAdvancedSignature(new String(request.getParameter("signature").getBytes("iso-8859-1"), "UTF-8"), encryptedString.toString(), publicKeyString);
+		return SignatureDecrypter.verifyAdvancedSignature(URLDecoder.decode( signature, "UTF-8"), encryptedString.toString(), publicKey);
+
+	}
 	/**
 	 * Decrypt signature with public key, and get string returned.
 	 * 
@@ -84,7 +168,7 @@ public class SignatureDecrypter {
 			maps.put(Key.Url, st.nextToken());
 			maps.put(Key.TenantId, st.nextToken());
 			maps.put(Key.Token, st.nextToken());
-			maps.put(Key.Timestamp, st.nextToken());
+				maps.put(Key.Timestamp, st.nextToken());
 			maps.put(Key.PageId, st.nextToken());
 			
 			return maps;
