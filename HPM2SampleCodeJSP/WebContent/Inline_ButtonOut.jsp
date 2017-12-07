@@ -192,7 +192,7 @@ function submitFail(callbackQueryString) {
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Inline, Submit Button Outside Hosted Page.</font></div>
-	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")'  style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 130px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")'  style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 	<div class="item"><font id="errorMessage" size="3" color="red"></font></div>
 	<div class="title"><div id="zuora_payment"></div></div>
 	<div class="item"><div id="submit" style="display:none"><button id="submitButton" onclick="submitPage();return false;" style="margin-left: 270px; width: 66px; height: 24px; margin-top: 10px;">Submit</button></div></div>

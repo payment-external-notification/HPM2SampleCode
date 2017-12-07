@@ -73,7 +73,19 @@ var callback = function (response) {
             // Submitting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
             forwardCallbackURL(response);
         }
-    } else {
+    } else if (response.responseFrom == "Response_From_3D_Validation") {
+		// Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
+		alert("In Sample Code: \n ThreeDSResult:" + response.ThreeDSResult
+				+ "\n AuthorizeResult: " + response.AuthorizeResult + "\n threedPaymentMethodId: "
+				+ response.threedPaymentMethodId + "\n AuthTransactionId: "
+				+ response.AuthTransactionId + "\n ECI: " + response.ECI
+				+ "\n XID: " + response.XID
+				+ "\n CAVV: " + response.CAVV
+				+ "\n field_passthrough1: " + response.field_passthrough1
+				+ "\n field_passthrough2: " + response.field_passthrough2);
+		
+		forwardCallbackURL(response);
+	} else {
     	// Requesting hosted page fails. Error handling code should be added here. Simply forward to the callback url in sample code.
     	forwardCallbackURL(response);
     }
@@ -126,7 +138,7 @@ function showPage() {
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Inline, Submit Button Inside Hosted Page.</font></div>
-	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 120px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")' style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
+	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 130px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")' style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 	<div class="title"><div id="zuora_payment"></div></div>
 </body>
 </html>

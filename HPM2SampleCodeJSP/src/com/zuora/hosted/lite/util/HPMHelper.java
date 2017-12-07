@@ -26,11 +26,23 @@
  */
 package com.zuora.hosted.lite.util;
 
+import com.zuora.hosted.lite.support.BypassSSLSocketFactory;
+import com.zuora.rsa.security.decrypt.FieldDecrypter;
+import com.zuora.rsa.security.decrypt.SignatureDecrypter;
+import com.zuora.rsa.security.encrypt.RsaEncrypter;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -46,20 +58,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.zuora.hosted.lite.support.BypassSSLSocketFactory;
-import com.zuora.rsa.security.decrypt.FieldDecrypter;
-import com.zuora.rsa.security.decrypt.SignatureDecrypter;
-import com.zuora.rsa.security.encrypt.RsaEncrypter;
-
 /**
  * HPM utility class which can 
  * 		1. load and maintain configurations
@@ -73,12 +71,14 @@ public class HPMHelper {
 	private static final int DEFAULT_HTTPS_PORT = 443;
 	private static final Set<String> fieldToEncrypt = new HashSet<String>();
 	
-	static {
-		fieldToEncrypt.add("creditCardNumber");
-		fieldToEncrypt.add("cardSecurityCode");
-		fieldToEncrypt.add("creditCardExpirationYear");
-		fieldToEncrypt.add("creditCardExpirationMonth");
-	}
+    static {
+        fieldToEncrypt.add("creditCardNumber");
+        fieldToEncrypt.add("cardSecurityCode");
+        fieldToEncrypt.add("creditCardExpirationYear");
+        fieldToEncrypt.add("creditCardExpirationMonth");
+        fieldToEncrypt.add("bankAccountNumber");
+        fieldToEncrypt.add("bankAccountName");
+    }
 	
 	private static String url = "";
 	private static String endPoint = "";
@@ -224,9 +224,13 @@ public class HPMHelper {
 		params.put("signature", result.getString("signature"));
 		params.put("key", publicKeyString);
 		params.put("url", url);
-		params.put("paymentGateway", page.getPaymentGateway());
-		
-		for(Iterator<String> iterator = prepopulateFields.keySet().iterator(); iterator.hasNext(); ) {
+        params.put("paymentGateway", page.getPaymentGateway());
+        // For 3DS test
+        params.put("authorizationAmount", "36");
+        params.put("field_passthrough1", "Test_Value_Passthrough1");
+        params.put("field_passthrough2", "Test_Value_Passthrough2");
+
+        for (Iterator<String> iterator = prepopulateFields.keySet().iterator(); iterator.hasNext(); ) {
 			String key = iterator.next();
 	    	String value = prepopulateFields.get(key);
 	    	if(fieldToEncrypt.contains(key)) {

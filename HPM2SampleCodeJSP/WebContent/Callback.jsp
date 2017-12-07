@@ -19,6 +19,16 @@
 			// Submitting hosted page failed.
 			message = "Hosted Page failed to submit. The reason is: " + request.getParameter("errorMessage");
 		}		
+	} else if("Response_From_3D_Validation".equals(request.getParameter("responseFrom"))){
+        message = "ThreeDSResult:" + request.getParameter("ThreeDSResult")
+        + "\n AuthorizeResult: " + request.getParameter("AuthorizeResult") + "\n PMID: "
+        + request.getParameter("threedPaymentMethodId") + "\n AuthTransactionId: "
+        + request.getParameter("AuthTransactionId") + "\n ECI: " + request.getParameter("ECI")
+        + "\n XID: " + request.getParameter("XID")
+        + "\n CAVV: " + request.getParameter("CAVV")
+        + "\n field_passthrough1: " + request.getParameter("field_passthrough1")
+        + "\n field_passthrough2: " + request.getParameter("field_passthrough2")
+        + "\n Return Params: creditCardCountry: " + request.getParameter("creditCardCountry");
 	} else {
 		// Requesting hosted page failed.
 		message = "Hosted Page failed to load. The reason is: " + request.getParameter("errorMessage");
@@ -50,7 +60,8 @@ function hideBackToHomepage() {
 if(window.parent != window) {
 	// Inline, submit button outside hosted page.
 	<%
-	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
+	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom")) 
+	        || "Response_From_3D_Validation".equals(request.getParameter("responseFrom"))) {
 		if("true".equals(request.getParameter("success"))) {
 			// Submitting hosted page succeeded.
 	%>
