@@ -229,7 +229,8 @@ public class HPMHelper {
         params.put("authorizationAmount", "36");
         params.put("field_passthrough1", "Test_Value_Passthrough1");
         params.put("field_passthrough2", "Test_Value_Passthrough2");
-
+        // For CCRef
+		params.put("param_supportedTypes", "AmericanExpress,JCB,Visa,MasterCard,Discover");
         for (Iterator<String> iterator = prepopulateFields.keySet().iterator(); iterator.hasNext(); ) {
 			String key = iterator.next();
 	    	String value = prepopulateFields.get(key);
