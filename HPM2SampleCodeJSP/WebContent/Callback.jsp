@@ -22,7 +22,8 @@ String newSignatureStr = "";
 			// Submitting hosted page failed.
 			message = "Hosted Page failed to submit. The reason is: " + request.getParameter("errorMessage");
 			try {
-				// Regenerate signature to render the form again.
+				// The following codes are only necessary when HPM reCAPTCHA function is enabled. 
+				// When it’s enabled, the token can only be used one time. So you need to re-generate signature if want to re-render hosted page.
 				JSONObject newSignature = HPMHelper.generateSignature((String)request.getParameter("field_passthrough3"));
 				newToken = newSignature.getString("token");
 				newSignatureStr = newSignature.getString("signature");

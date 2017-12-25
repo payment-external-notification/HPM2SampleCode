@@ -10,8 +10,8 @@
 	params.put("submitEnabled", "false");
 	params.put("locale", request.getParameter("locale"));
 	params.put("retainValues", "true");
-	/* params.put("signatureType", "advanced");
- 	params.put("field_passthrough1", "100");
+	params.put("signatureType", "advanced");
+	/* params.put("field_passthrough1", "100");
  	params.put("field_passthrough2", "100");
  	params.put("field_passthrough3", "100");
  	params.put("field_passthrough4", "100");
@@ -173,11 +173,10 @@ function submitFail(callbackQueryString, newToken, newSignature) {
 		parameterArray[j.substring(0,j.indexOf("="))] = j.substring(j.indexOf("=")+1,j.length); 
 	}
 	
-	//replace new signature
-     params["token"] = newToken;
-     params["signature"] = newSignature;
-     params["retainValues"] = "true";
-     
+	// Replace new signature. This is only necessary when HPM reCAPTCHA function is enabled.
+    params["token"] = newToken;
+    params["signature"] = newSignature;
+    
 	// Submitting hosted page failed, reload hosted page with retained values and display error message.
 	if(jsVersion == "1.0.0" || jsVersion == "1.1.0") {
 		

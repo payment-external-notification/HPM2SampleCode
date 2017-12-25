@@ -231,7 +231,7 @@ public class HPMHelper {
         params.put("field_passthrough2", "Test_Value_Passthrough2");
         // For CCRef
 		params.put("param_supportedTypes", "AmericanExpress,JCB,Visa,MasterCard,Discover");
-		// For Regenerate pwd when submit failed in button out model
+		// Page Id is required to Regenerate signature and token, and regenerate signature is required when reCAPTCHA function is enabled and when submit failed in button out model.
 		params.put("field_passthrough3", page.getPageId());
 		
         for (Iterator<String> iterator = prepopulateFields.keySet().iterator(); iterator.hasNext(); ) {
