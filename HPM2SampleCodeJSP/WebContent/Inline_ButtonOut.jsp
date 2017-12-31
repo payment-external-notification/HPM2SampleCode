@@ -10,13 +10,13 @@
 	params.put("submitEnabled", "false");
 	params.put("locale", request.getParameter("locale"));
 	params.put("retainValues", "true");
-	params.put("signatureType", "advanced");
+	/* params.put("signatureType", "advanced");
  	params.put("field_passthrough1", "100");
  	params.put("field_passthrough2", "100");
- 	//params.put("field_passthrough3", "100");
+ 	params.put("field_passthrough3", "100");
  	params.put("field_passthrough4", "100");
- 	params.put("field_passthrough5", "100");
-	
+ 	params.put("field_passthrough5", "100"); */
+ 	
 	Properties prepopulateFields = new Properties();
 	prepopulateFields.load(new FileInputStream(request.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
 	
@@ -118,6 +118,7 @@ function showPage() {
 }
 
 function submitPage() {
+	
 	document.getElementById('errorMessage').innerHTML='';
 	Z.submit();	
 	return false;
@@ -162,7 +163,7 @@ var serverErrorMessageCallback = function() {
 	}
 };
 
-function submitFail(callbackQueryString) {
+function submitFail(callbackQueryString, newToken, newSignature) {
 	var zuoraDiv = document.getElementById('zuora_payment');
 	zuoraDiv.innerHTML="";
 	
@@ -172,6 +173,11 @@ function submitFail(callbackQueryString) {
 		parameterArray[j.substring(0,j.indexOf("="))] = j.substring(j.indexOf("=")+1,j.length); 
 	}
 	
+	//replace new signature
+     params["token"] = newToken;
+     params["signature"] = newSignature;
+     params["retainValues"] = "true";
+     
 	// Submitting hosted page failed, reload hosted page with retained values and display error message.
 	if(jsVersion == "1.0.0" || jsVersion == "1.1.0") {
 		
@@ -189,6 +195,7 @@ function submitFail(callbackQueryString) {
 	}
 }
 </script>
+
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 90px; height: 80px;">Inline, Submit Button Outside Hosted Page.</font></div>
