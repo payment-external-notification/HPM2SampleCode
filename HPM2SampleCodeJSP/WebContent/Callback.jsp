@@ -1,7 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.zuora.hosted.lite.util.HPMHelper" %>
+<%@ page import="org.json.JSONObject" %>
 <%
 	String message = "";
+String newToken = "";
+String newSignatureStr = "";
 	if("Response_From_Submit_Page".equals(request.getParameter("responseFrom"))) {
 		if("true".equals(request.getParameter("success"))) {
 			// Validate signature. Signature's expired time is 30 minutes.
@@ -18,6 +21,16 @@
 		} else {
 			// Submitting hosted page failed.
 			message = "Hosted Page failed to submit. The reason is: " + request.getParameter("errorMessage");
+			try {
+				// The following codes are only necessary when HPM reCAPTCHA function is enabled. 
+				// When it’s enabled, the token can only be used one time. So you need to re-generate signature if want to re-render hosted page.
+				JSONObject newSignature = HPMHelper.generateSignature((String)request.getParameter("field_passthrough3"));
+				newToken = newSignature.getString("token");
+				newSignatureStr = newSignature.getString("signature");
+			} catch(Exception e) {
+				// TODO: Error handling code should be added here.
+				throw e;
+			}
 		}		
 	} else if("Response_From_3D_Validation".equals(request.getParameter("responseFrom"))){
         message = "ThreeDSResult:" + request.getParameter("ThreeDSResult")
@@ -42,6 +55,7 @@
 <link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Result</title>
 <script type="text/javascript">
+
 function hideBackToHomepage() {
 	if(window.parent != window) {
 		// Inline, submit button outside hosted page. Hide the 'Back To Homepage' button.
@@ -57,6 +71,7 @@ function hideBackToHomepage() {
 </html>
 
 <script type="text/javascript">
+
 if(window.parent != window) {
 	// Inline, submit button outside hosted page.
 	<%
@@ -70,7 +85,7 @@ if(window.parent != window) {
 		} else {
 			// Submitting hosted page failed.
 	%>
-	window.parent.submitFail("<%=request.getQueryString()%>");
+	window.parent.submitFail("<%=request.getQueryString()%>", "<%=newToken%>", "<%=newSignatureStr%>");
 	<%
 		}
 	}

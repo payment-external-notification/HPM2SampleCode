@@ -231,6 +231,9 @@ public class HPMHelper {
         params.put("field_passthrough2", "Test_Value_Passthrough2");
         // For CCRef
 		params.put("param_supportedTypes", "AmericanExpress,JCB,Visa,MasterCard,Discover");
+		// Page Id is required to Regenerate signature and token, and regenerate signature is required when reCAPTCHA function is enabled and when submit failed in button out model.
+		params.put("field_passthrough3", page.getPageId());
+		
         for (Iterator<String> iterator = prepopulateFields.keySet().iterator(); iterator.hasNext(); ) {
 			String key = iterator.next();
 	    	String value = prepopulateFields.get(key);
@@ -257,7 +260,7 @@ public class HPMHelper {
 		}
 	}
 	
-	private static JSONObject generateSignature(String pageId) throws Exception {
+	public static JSONObject generateSignature(String pageId) throws Exception {
 		HttpClient httpClient = new HttpClient();
 		PostMethod postRequest = new PostMethod(endPoint);  
     	postRequest.addRequestHeader("apiAccessKeyId", username);
