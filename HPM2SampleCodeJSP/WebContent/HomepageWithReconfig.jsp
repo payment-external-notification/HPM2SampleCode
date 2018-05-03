@@ -11,7 +11,7 @@ if (request.getParameter("CALLBACK_URL")!=null) {HPMHelper.setCallbackURL(reques
 if (request.getParameter("PAGE_PAGEID")!=null && request.getParameter("USERNAME")!=null && request.getParameter("PASSWORD")!=null && request.getParameter("PUBLIC_KEY")!=null && request.getParameter("ENDPOINT")!=null && request.getParameter("URL")!=null) {
 	String pageId = request.getParameter("PAGE_PAGEID");
 	String pageName = "page" + pageId;
-	HPMHelper.createHPMPage(pageName,pageId,"", Arrays.asList("en"), request.getParameter("USERNAME"), request.getParameter("PASSWORD"), request.getParameter("PUBLIC_KEY"), request.getParameter("ENDPOINT"), request.getParameter("URL"));
+	HPMHelper.createHPMPage(pageName,pageId,"", Arrays.asList("en"), request.getParameter("USERNAME"), request.getParameter("PASSWORD"), request.getParameter("PUBLIC_KEY"), request.getParameter("ENDPOINT"), request.getParameter("URL"), request.getParameter("ACCOUNTID"));
 }
 %>
 <!DOCTYPE html>
@@ -96,9 +96,10 @@ function showPage() {
 		var password = encodeURIComponent(document.getElementById("password").value);
 		var publickey = encodeURIComponent(document.getElementById("publickey").value);
 		var page_pageid = encodeURIComponent(document.getElementById("page_pageid").value);
+		var accountid = encodeURIComponent(document.getElementById("accountid").value);
 		
 		window.location.replace("HomepageWithReconfig.jsp?URL="+url+"&ENDPOINT="+endpoint+"&CALLBACK_URL="+callbackurl+"&USERNAME="+username
-				+"&PASSWORD="+password+"&PUBLIC_KEY="+publickey+"&PAGE_PAGEID="+page_pageid);
+				+"&PASSWORD="+password+"&PUBLIC_KEY="+publickey+"&PAGE_PAGEID="+page_pageid+"&ACCOUNTID="+accountid);
 	}
  
 </script>
@@ -114,6 +115,7 @@ function showPage() {
 		<%-- <span style="display:inline-block;width:200px;text-align:right;">JSPATH:       </span><input type="text" name="style" style="width:300px" id="jspath" value=<%=HPMHelper.getJsPath()%> /><br> --%>
 		<span style="display:inline-block;width:200px;text-align:right;">CALLBACKURL:  </span><input type="text" name="style" style="width:300px" id="callbackurl"/><br>
 		<span style="display:inline-block;width:200px;text-align:right;">PAGE_PAGEID:</span><input type="text" name="style" style="width:300px" id="page_pageid"/><br>
+		<span style="display:inline-block;width:200px;text-align:right;">ACCOUNT_ID:</span><input type="text" name="style" style="width:300px" id="accountid"/><br>
 		<button type="button" onclick="saveConfig()" style="width: 150px; height: 24px; margin-left: 200px;">Save new config</button><br>
 	</div>
 	<div class="firstTitle"><font size="5">Please select the Hosted Page:</font></div>

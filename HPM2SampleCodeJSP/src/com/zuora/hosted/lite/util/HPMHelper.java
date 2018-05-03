@@ -114,7 +114,7 @@ public class HPMHelper {
 		jsPath = jsPathStr;
 	}
 
-	public static void createHPMPage(String pageName, String pageId, String gateway, List<String> locales, String username, String password, String publicKeyStr, String endPoint, String url) {
+	public static void createHPMPage(String pageName, String pageId, String gateway, List<String> locales, String username, String password, String publicKeyStr, String endPoint, String url, String accountId) {
 		HPMPage page = new HPMPage();
 		page.setPageId(pageId);
 		page.setPaymentGateway(gateway);
@@ -124,6 +124,7 @@ public class HPMHelper {
 		page.setPublicKeyString(publicKeyStr);
 		page.setEndpoint(endPoint);
 		page.setUrl(url);
+		page.setAccountId(accountId);
 		pages.put(pageName, page);
 	}
 	
@@ -184,6 +185,7 @@ public class HPMHelper {
 		private String publicKeyString = "";
 		private String endPoint = "";
 		private String url = "";
+		private String accId = "";
 
 		public String getPageId() {
 			return pageId;
@@ -247,6 +249,14 @@ public class HPMHelper {
 		
 		public void setUrl(String url) {
 			this.url = url;
+		}
+		
+		public String getAccountId() {
+			return accId;
+		}
+		
+		public void setAccountId(String accId) {
+			this.accId = accId;
 		}
 
 		public HPMPage() {
@@ -340,6 +350,12 @@ public class HPMHelper {
 		params.put("signature", result.getString("signature"));
 		params.put("key", page.getPublicKeyString());
 		params.put("paymentGateway", page.getPaymentGateway());
+		
+		// For align PM with account id
+		if(!("").equals(page.getAccountId())) {
+			params.put("field_accountId", page.getAccountId());
+		}
+		
 		// For 3DS test
 		params.put("authorizationAmount", "36");
 		// params.put("field_passthrough1", "Test_Value_Passthrough1");
