@@ -114,7 +114,7 @@ public class HPMHelper {
 		jsPath = jsPathStr;
 	}
 
-	public static void createHPMPage(String pageName, String pageId, String gateway, List<String> locales, String username, String password, String publicKeyStr, String endPoint, String url, String accountId) {
+	public static void createHPMPage(String pageName, String pageId, String gateway, List<String> locales, String username, String password, String publicKeyStr, String endPoint, String url, String accountId, String gwOption) {
 		HPMPage page = new HPMPage();
 		page.setPageId(pageId);
 		page.setPaymentGateway(gateway);
@@ -125,6 +125,7 @@ public class HPMHelper {
 		page.setEndpoint(endPoint);
 		page.setUrl(url);
 		page.setAccountId(accountId);
+		page.setGWOption(gwOption);
 		pages.put(pageName, page);
 	}
 	
@@ -186,6 +187,7 @@ public class HPMHelper {
 		private String endPoint = "";
 		private String url = "";
 		private String accId = "";
+		private String gwOption = "";
 
 		public String getPageId() {
 			return pageId;
@@ -257,6 +259,14 @@ public class HPMHelper {
 		
 		public void setAccountId(String accId) {
 			this.accId = accId;
+		}
+		
+		public String getGWOption() {
+			return gwOption;
+		}
+		
+		public void setGWOption(String gwOption) {
+			this.gwOption = gwOption;
 		}
 
 		public HPMPage() {
@@ -354,6 +364,16 @@ public class HPMHelper {
 		// For align PM with account id
 		if(!("").equals(page.getAccountId())) {
 			params.put("field_accountId", page.getAccountId());
+		}
+		
+		// For set gateway option test
+		if(!("").equals(page.getGWOption())) {
+			// gateway option will compose by gateway instance name, option key and option value
+			String[] opts = page.getGWOption().split(",");
+			if(opts.length==3) {
+				params.put("paymentGateway", opts[0]);
+			    params.put("param_gwOptions_" + opts[1], opts[2]);
+			}
 		}
 		
 		// For 3DS test
