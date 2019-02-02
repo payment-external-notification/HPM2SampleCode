@@ -120,6 +120,7 @@ function showPage() {
 function submitPage() {
 	
 	document.getElementById('errorMessage').innerHTML='';
+	Z.setAgreement("","http://www.google.com","Visa");
 	Z.submit();	
 	return false;
 }

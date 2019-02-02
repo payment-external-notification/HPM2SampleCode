@@ -95,7 +95,8 @@ function showPage() {
 	</div>
 	<div class="title"><font size="5">Please select the Hosted Page style you want:</font></div>
 	<div class="item"><input type="radio" name="style" id="ButtonIn" value="Inline_ButtonIn.jsp" checked="checked"/>Inline, Submit button inside Hosted Page.</div>
-	<div class="item"><input type="radio" name="style" id="ButtonOut" value="Inline_ButtonOut.jsp"/>Inline, Submit button outside Hosted Page.</div>
+	<div class="item"><input type="radio" name="style" id="ButtonOut_Legacy" value="Inline_ButtonOut_Legacy.jsp"/>Inline, Submit button outside Hosted Page, Legacy.</div>
+	<div class="item"><input type="radio" name="style" id="ButtonOut_CITMIT" value="Inline_ButtonOut_CITMIT.jsp"/>Inline, Submit button outside Hosted Page, CIT/MIT.</div>
 	<div class="item"><input type="radio" name="style" id="Overlay" value="Overlay.jsp"/>Overlay Hosted Page.</div>
 	<div class="title"><font size="5">Please select the locale:</font></div>
 	<div class="item">
