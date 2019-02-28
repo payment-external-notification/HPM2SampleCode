@@ -115,13 +115,18 @@ function showPage() {
 	
 	// Display the submit button.
 	document.getElementById("submit").style.display = "inline";
+
+	document.getElementById("checkBoxDiv").hidden = false;
 }
 
 function submitPage() {
 	
 	document.getElementById('errorMessage').innerHTML='';
-	Z.setAgreement("","http://www.google.com","Visa");
-	Z.submit();	
+	if (document.getElementById('agreement').checked) {
+		if (!Z.setAgreement("External","Recurring","Visa","http://www.google.com"))
+			return;
+	}
+	Z.submit();
 	return false;
 }
 
@@ -202,6 +207,9 @@ function submitFail(callbackQueryString, newToken, newSignature) {
 	<div class="item"><button id="showPage" onclick="showPage()" style="margin-left: 150px; height: 24px; width: 130px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")'  style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 	<div class="item"><font id="errorMessage" size="3" color="red"></font></div>
 	<div class="title"><div id="zuora_payment"></div></div>
+	<div id="checkBoxDiv" class="item" hidden>
+		<input id="agreement" type="checkbox">  agreement
+	</div>
 	<div class="item"><div id="submit" style="display:none"><button id="submitButton" onclick="submitPage();return false;" style="margin-left: 270px; width: 66px; height: 24px; margin-top: 10px;">Submit</button></div></div>
 </body>
 </html>
