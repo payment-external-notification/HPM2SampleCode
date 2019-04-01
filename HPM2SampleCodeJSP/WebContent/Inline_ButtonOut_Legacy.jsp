@@ -10,7 +10,7 @@
 	params.put("submitEnabled", "false");
 	params.put("locale", request.getParameter("locale"));
 	params.put("retainValues", "true");
-	params.put("signatureType", "advanced");
+	//params.put("signatureType", "advanced");
 	/* params.put("field_passthrough1", "100");
  	params.put("field_passthrough2", "100");
  	params.put("field_passthrough3", "100");
