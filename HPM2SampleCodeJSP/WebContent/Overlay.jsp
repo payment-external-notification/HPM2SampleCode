@@ -9,7 +9,7 @@
 	params.put("style", "overlay");
 	params.put("submitEnabled", "true");
 	params.put("locale", request.getParameter("locale"));
-	
+
 	Properties prepopulateFields = new Properties();
 	prepopulateFields.load(new FileInputStream(request.getServletContext().getRealPath("WEB-INF") + "/data/prepopulate.properties"));
 	
@@ -30,7 +30,7 @@
 <title>Overlay</title>
 <script type="text/javascript" src='<%=HPMHelper.getPage(request.getParameter("pageName")).getJavascriptPath()%>'></script>
 <script type="text/javascript">
-var jsVersion = "<%=HPMHelper.getJsVersion()%>";
+var jsVersion = "<%=HPMHelper.getPage(request.getParameter("pageName")).getJavascriptVersion()%>";
 
 //HPM parameters and passthroughs
 var params = {};
@@ -112,6 +112,8 @@ var errorMessageCallback = function(key, code, message) {
 };
 
 function showPage() {
+	var jsLabel = document.getElementById('jsPathDisplay');
+	jsLabel.innerHTML="jsversion is:" + jsVersion;
 	if(jsVersion == "1.0.0" || jsVersion == "1.1.0") {
 		// Zuora javascript of version 1.0.0 and 1.1.0 only supports Z.render. 
 		Z.render(params,prepopulateFields,callback);
@@ -124,6 +126,7 @@ function showPage() {
 </head>
 <body>
 	<div class="firstTitle"><font size="5" style="margin-left: 140px; height: 80px;">Overlay Hosted Page</font></div>
+	<div id="jsPathDisplay"></div>
 	<div class="item"><button onclick="showPage()" style="margin-left: 100px; height: 24px; width: 130px;">Open Hosted Page</button><button onclick='window.location.replace("Homepage.jsp")' style="margin-left: 20px; width: 140px; height: 24px;">Back To Homepage</button></div>
 	<div class="title"><div id="zuora_payment"></div></div>
 </body>

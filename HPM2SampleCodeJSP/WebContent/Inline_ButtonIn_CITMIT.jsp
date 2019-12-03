@@ -30,7 +30,7 @@
 <title>Inline, Button In.</title>
 <script type="text/javascript" src='<%=HPMHelper.getPage(request.getParameter("pageName")).getJavascriptPath()%>'></script>
 <script type="text/javascript">
-var jsVersion = "<%=HPMHelper.getJsVersion()%>";
+var jsVersion = "<%=HPMHelper.getPage(request.getParameter("pageName")).getJavascriptVersion()%>";
 
 //HPM parameters and passthroughs
 var params = {};
@@ -125,7 +125,10 @@ var errorMessageCallback = function(key, code, message) {
 
 function showPage() {
 	document.getElementById("showPage").disabled = true;
-	
+
+	var jsLabel = document.getElementById('jsPathDisplay');
+	jsLabel.innerHTML="jsversion is:" + jsVersion;
+
 	if(jsVersion == "1.0.0" || jsVersion == "1.1.0") {
 		// Zuora javascript of version 1.0.0 and 1.1.0 only supports Z.render. 
 		Z.render(params,prepopulateFields,callback);
@@ -155,5 +158,6 @@ function agree() {
 	<div id="checkBoxDiv" class="item" hidden>
 		<input id="agreement" type="checkbox" onclick="agree()"> agreement
 	</div>
+	<div id="jsPathDisplay"  class="item" ></div>
 </body>
 </html>

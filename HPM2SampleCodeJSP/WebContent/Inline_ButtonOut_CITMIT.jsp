@@ -37,7 +37,7 @@
 <title>Inline, Button Out.</title>
 <script type="text/javascript" src='<%=HPMHelper.getPage(request.getParameter("pageName")).getJavascriptPath()%>'></script>
 <script type="text/javascript">
-var jsVersion = "<%=HPMHelper.getJsVersion()%>";
+var jsVersion = "<%=HPMHelper.getPage(request.getParameter("pageName")).getJavascriptVersion()%>";
 
 //HPM parameters and passthroughs
 var params = {};
@@ -101,6 +101,9 @@ var clientErrorMessageCallback = function(key, code, message) {
 
 function showPage() {
 	document.getElementById("showPage").disabled = true;
+
+	var jsLabel = document.getElementById('jsPathDisplay');
+	jsLabel.innerHTML="jsversion is:" + jsVersion;
 	
 	var zuoraDiv = document.getElementById('zuora_payment');
 	zuoraDiv.innerHTML="";
@@ -215,6 +218,7 @@ function submitFail(callbackQueryString, newToken, newSignature) {
 	<div id="checkBoxDiv" class="item" hidden>
 		<input id="agreement" type="checkbox">  agreement
 	</div>
+	<div id="jsPathDisplay"  class="item" ></div>
 	<div class="item"><div id="submit" style="display:none"><button id="submitButton" onclick="submitPage();return false;" style="margin-left: 270px; width: 66px; height: 24px; margin-top: 10px;">Submit</button></div></div>
 </body>
 </html>

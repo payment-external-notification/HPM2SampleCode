@@ -127,8 +127,14 @@ public class HPMHelper {
 		page.setGWOption(gwOption);
 		if(javascriptPath !=null && !javascriptPath.isEmpty()){
 			page.setJavascriptPath(javascriptPath);
+			Pattern pattern = Pattern.compile(".+hosted/(.+)/zuora.+");
+			Matcher matcher = pattern.matcher(javascriptPath);
+			if(matcher.matches()) {
+				page.setJavascriptVersion(matcher.group(1));
+			}
 		}else {
             page.setJavascriptPath(jsPath);
+			page.setJavascriptVersion(jsVersion);
 		}
 		pages.put(pageName, page);
 	}
@@ -191,6 +197,7 @@ public class HPMHelper {
 		private String accId = "";
 		private String gwOption = "";
 		private String javascriptPath="";
+		private String javascriptVersion="";
 
 
 		public String getPageId() {
@@ -209,6 +216,13 @@ public class HPMHelper {
 			this.javascriptPath = javascriptPath;
 		}
 
+		public String getJavascriptVersion() {
+			return javascriptVersion;
+		}
+
+		public void setJavascriptVersion(String javascriptVersion) {
+			this.javascriptVersion = javascriptVersion;
+		}
 
 		public String getPaymentGateway() {
 			return paymentGateway;
