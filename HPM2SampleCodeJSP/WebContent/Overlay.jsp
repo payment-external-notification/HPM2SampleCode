@@ -28,7 +28,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link href="css/hpm2samplecode.css" rel="stylesheet" type="text/css" />
 <title>Overlay</title>
-<script type="text/javascript" src='<%=HPMHelper.getJsPath()%>'></script>
+<script type="text/javascript" src='<%=HPMHelper.getPage(request.getParameter("pageName")).getJavascriptPath()%>'></script>
 <script type="text/javascript">
 var jsVersion = "<%=HPMHelper.getJsVersion()%>";
 

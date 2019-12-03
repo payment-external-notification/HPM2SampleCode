@@ -113,7 +113,7 @@ public class HPMHelper {
 	public static void setJsPath(String jsPathStr) {
 		jsPath = jsPathStr;
 	}
-	public static void createHPMPage(String pageName, String pageId, String gateway, List<String> locales, String username, String password, String publicKeyStr, String endPoint, String url, String accountId, String gwOption) {
+	public static void createHPMPage(String pageName, String pageId, String gateway, List<String> locales, String username, String password, String publicKeyStr, String endPoint, String url, String accountId, String gwOption,String javascriptPath) {
 		HPMPage page = new HPMPage();
 		page.setPageId(pageId);
 		page.setPaymentGateway(gateway);
@@ -125,6 +125,11 @@ public class HPMHelper {
 		page.setUrl(url);
 		page.setAccountId(accountId);
 		page.setGWOption(gwOption);
+		if(javascriptPath !=null && !javascriptPath.isEmpty()){
+			page.setJavascriptPath(javascriptPath);
+		}else {
+            page.setJavascriptPath(jsPath);
+		}
 		pages.put(pageName, page);
 	}
 	public static String getUserName(String pageId) {
@@ -185,6 +190,8 @@ public class HPMHelper {
 		private String url = "";
 		private String accId = "";
 		private String gwOption = "";
+		private String javascriptPath="";
+
 
 		public String getPageId() {
 			return pageId;
@@ -193,7 +200,16 @@ public class HPMHelper {
 		public void setPageId(String pageId) {
 			this.pageId = pageId;
 		}
-		
+
+		public String getJavascriptPath() {
+			return javascriptPath;
+		}
+
+		public void setJavascriptPath(String javascriptPath) {
+			this.javascriptPath = javascriptPath;
+		}
+
+
 		public String getPaymentGateway() {
 			return paymentGateway;
 		}
@@ -372,7 +388,7 @@ public class HPMHelper {
 //        params.put("field_passthrough1", "Test_Value_Passthrough1");
 //        params.put("field_passthrough2", "Test_Value_Passthrough2");
         // For CCRef
-		params.put("param_supportedTypes", "AmericanExpress,JCB,Visa,MasterCard,Discover");
+		params.put("param_supportedTypes", "AmericanExpress,JCB,Visa,MasterCard,Discover,Dankort");
 		// Page Id is required to Regenerate signature and token, and regenerate signature is required when reCAPTCHA function is enabled and when submit failed in button out model.
 		params.put("field_passthrough3", page.getPageId());
 		

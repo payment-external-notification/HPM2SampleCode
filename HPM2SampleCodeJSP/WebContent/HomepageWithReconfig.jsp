@@ -11,7 +11,7 @@
 	if (request.getParameter("PAGE_PAGEID")!=null && request.getParameter("USERNAME")!=null && request.getParameter("PASSWORD")!=null && request.getParameter("PUBLIC_KEY")!=null && request.getParameter("ENDPOINT")!=null && request.getParameter("URL")!=null) {
 		String pageId = request.getParameter("PAGE_PAGEID");
 		String pageName = "page" + pageId;
-		HPMHelper.createHPMPage(pageName,pageId,"", Arrays.asList("en"), request.getParameter("USERNAME"), request.getParameter("PASSWORD"), request.getParameter("PUBLIC_KEY"), request.getParameter("ENDPOINT"), request.getParameter("URL"), request.getParameter("ACCOUNTID"), request.getParameter("GWOPTION"));
+		HPMHelper.createHPMPage(pageName,pageId,"", Arrays.asList("en"), request.getParameter("USERNAME"), request.getParameter("PASSWORD"), request.getParameter("PUBLIC_KEY"), request.getParameter("ENDPOINT"), request.getParameter("URL"), request.getParameter("ACCOUNTID"), request.getParameter("GWOPTION"),request.getParameter("JSPATH"));
 	}
 %>
 <!DOCTYPE html>
@@ -98,9 +98,10 @@ function saveConfig() {
 	var page_pageid = encodeURIComponent(document.getElementById("page_pageid").value);
 	var accountid = encodeURIComponent(document.getElementById("accountid").value);
 	var gwOption = encodeURIComponent(document.getElementById("gwOption").value);
+	var jsPath = encodeURIComponent(document.getElementById("jsPath").value);
 
 	window.location.replace("HomepageWithReconfig.jsp?URL="+url+"&ENDPOINT="+endpoint+"&CALLBACK_URL="+callbackurl+"&USERNAME="+username
-			+"&PASSWORD="+password+"&PUBLIC_KEY="+publickey+"&PAGE_PAGEID="+page_pageid+"&ACCOUNTID="+accountid+"&GWOPTION="+gwOption);
+			+"&PASSWORD="+password+"&PUBLIC_KEY="+publickey+"&PAGE_PAGEID="+page_pageid+"&ACCOUNTID="+accountid+"&GWOPTION="+gwOption+"&JSPATH="+jsPath);
 }
 
 </script>
@@ -118,6 +119,7 @@ function saveConfig() {
 		<span style="display:inline-block;width:200px;text-align:right;">PAGE_PAGEID:</span><input type="text" name="style" style="width:300px" id="page_pageid"/><br>
 		<span style="display:inline-block;width:200px;text-align:right;">ACCOUNT_ID:</span><input type="text" name="style" style="width:300px" id="accountid"/><br>
 		<span style="display:inline-block;width:200px;text-align:right;">GATEWAY_OPTION:</span><input type="text" name="style" style="width:300px" id="gwOption"/><br>
+		<span style="display:inline-block;width:200px;text-align:right;">JS_PATH:</span><input type="text" name="style" style="width:300px" id="jsPath"/><br>
 		<button type="button" onclick="saveConfig()" style="width: 150px; height: 24px; margin-left: 200px;">Save new config</button><br>
 	</div>
 	<div class="firstTitle"><font size="5">Please select the Hosted Page:</font></div>
