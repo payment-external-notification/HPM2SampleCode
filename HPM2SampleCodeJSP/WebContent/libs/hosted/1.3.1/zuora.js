@@ -657,10 +657,11 @@ var Z = function () {
       return false;
     },
 
-    renderWithErrorHandler: function (params, initFields, callback, errorCallback, width, height) {
+    renderWithErrorHandler: function (params, initFields, callback, errorCallback, width, height, removeCoverCallback) {
       params['customizeErrorRequired'] = 'true';
       Z.render(params, initFields, callback, width, height);
       Z.customizeErrorHandler(errorCallback);
+      Z.removeCoverHandler(removeCoverCallback);
     },
 
     runAfterRender: function (errorFn) {
@@ -674,6 +675,11 @@ var Z = function () {
       if(height != null && height != undefined){
     	  customizedHeight = height;
       }
+
+      customizedWidth = Number(customizedWidth);
+      customizedHeight = Number(customizedHeight);
+      customizedWidth = isNaN(customizedWidth) ? 0 : customizedWidth;
+      customizedHeight = isNaN(customizedHeight) ? 0 : customizedHeight;
       
       var len = pciParams.length;
       // Reset the flag
@@ -970,6 +976,13 @@ var Z = function () {
       eventHandlers['customizeErrorMessage'] = callback;
     },
 
+    removeCoverHandler: function (removeCoverCallback) {
+      if (removeCoverCallback == null || removeCoverCallback == undefined) {
+        return false;
+      }
+      eventHandlers['removeCover'] = removeCoverCallback;
+    },
+
     sendErrorMessageToHpm: function (key, errorMessage) {
       var jsonMessage = {
         action : 'customizeErrorMessage',
@@ -1092,33 +1105,8 @@ var ZFB = function () {
       if (currentfr) {
         currentfr.style.display = "block";
         // Use customized width if it is provided, otherwise use calculated value
-        if(customizedWidth != null && customizedWidth != undefined){
-        	try{
-        		if(!isNaN(customizedWidth) && customizedWidth.length > 0){
-        			currentfr.width = Number(customizedWidth);
-        		} else{
-        			currentfr.width = Number(width);
-        		}
-        	} catch(e){
-        		currentfr.width = Number(width);
-        	}
-        }else{
-            currentfr.width = Number(width); 	
-        }
-        // Use customized Height if it is provided, otherwise use calculated value
-        if(customizedHeight != null && customizedHeight != undefined){
-        	try{
-        		if(!isNaN(customizedHeight) && customizedHeight.length > 0){
-        			currentfr.height = Number(customizedHeight);
-        		} else{
-        			currentfr.height = Number(height);
-        		}
-        	} catch(e){
-        		currentfr.height = Number(height);
-        	}
-        }else{
-            currentfr.height = Number(height);
-        }
+        currentfr.width = customizedWidth > 0 ? customizedWidth : Number(width);
+        currentfr.height = customizedHeight > 0 ? customizedHeight : Number(height);
       }
     }
   }
