@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="HPM2SampleCodeJava">
+        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <property name="java-output-path" value="/HPM2SampleCodeJSP/build/classes"/>
+        <property name="context-root" value="HPM2SampleCodeJSP"/>
+    </wb-module>
+</project-modules>
